@@ -23,18 +23,98 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // UI Translations
+  const translations = {
+    en: {
+      headerTitleChat: 'AI Chat',
+      headerTitleAsst: 'AI Assistant',
+      heroGreeting: 'What would you like to know today?',
+      guideMe: 'Guide Me',
+      quickChat: 'Quick Chat',
+      popularTools: 'Popular Tools',
+      eligibilityTitle: 'Eligibility',
+      eligibilityDesc: 'Check right now',
+      pollingBoothTitle: 'Polling Booth',
+      pollingBoothDesc: 'Find nearby',
+      timelineTitle: 'Timeline',
+      timelineDesc: 'Election process',
+      remindersTitle: 'Reminders',
+      remindersDesc: 'Sync calendar',
+      navHome: 'Home',
+      navChat: 'Chat'
+    },
+    hi: {
+      headerTitleChat: 'एआई चैट',
+      headerTitleAsst: 'एआई असिस्टेंट',
+      heroGreeting: 'आज आप क्या जानना चाहेंगे?',
+      guideMe: 'मेरा मार्गदर्शन करें',
+      quickChat: 'त्वरित चैट',
+      popularTools: 'लोकप्रिय टूल्स',
+      eligibilityTitle: 'पात्रता',
+      eligibilityDesc: 'अभी जांचें',
+      pollingBoothTitle: 'मतदान केंद्र',
+      pollingBoothDesc: 'आस-पास खोजें',
+      timelineTitle: 'समयरेखा',
+      timelineDesc: 'चुनाव प्रक्रिया',
+      remindersTitle: 'रिमाइंडर',
+      remindersDesc: 'कैलेंडर सिंक करें',
+      navHome: 'होम',
+      navChat: 'चैट'
+    }
+  };
+
+  function applyTranslations(lang: 'en' | 'hi') {
+    const t = translations[lang];
+    const headerTitle = document.getElementById('header-title');
+    const isChatOpen = !document.getElementById('tab-chat')?.classList.contains('hidden-tab');
+    if (headerTitle) headerTitle.textContent = isChatOpen ? t.headerTitleChat : t.headerTitleAsst;
+
+    const heroGreeting = document.querySelector('.hero-greeting');
+    if (heroGreeting) heroGreeting.textContent = t.heroGreeting;
+
+    const btnGuideMe = document.getElementById('btn-guide-me');
+    if (btnGuideMe) btnGuideMe.childNodes[2].textContent = t.guideMe;
+
+    const btnStartChat = document.getElementById('btn-start-chat');
+    if (btnStartChat) btnStartChat.childNodes[2].textContent = t.quickChat;
+
+    const sectionTitle = document.querySelector('.section-title');
+    if (sectionTitle) sectionTitle.textContent = t.popularTools;
+
+    const cElig = document.getElementById('card-eligibility');
+    if (cElig) { cElig.querySelector('h4')!.textContent = t.eligibilityTitle; cElig.querySelector('p')!.textContent = t.eligibilityDesc; }
+
+    const cMaps = document.getElementById('card-maps');
+    if (cMaps) { cMaps.querySelector('h4')!.textContent = t.pollingBoothTitle; cMaps.querySelector('p')!.textContent = t.pollingBoothDesc; }
+
+    const cTime = document.getElementById('card-timeline');
+    if (cTime) { cTime.querySelector('h4')!.textContent = t.timelineTitle; cTime.querySelector('p')!.textContent = t.timelineDesc; }
+
+    const cCal = document.getElementById('card-calendar');
+    if (cCal) { cCal.querySelector('h4')!.textContent = t.remindersTitle; cCal.querySelector('p')!.textContent = t.remindersDesc; }
+
+    const navLabels = document.querySelectorAll('.nav-label');
+    if (navLabels.length >= 2) {
+      navLabels[0].textContent = t.navHome;
+      navLabels[1].textContent = t.navChat;
+    }
+  }
+
   // Language Toggle
   const langToggle = document.getElementById('lang-toggle') as HTMLSelectElement | null;
-  let currentLang = savedLang;
+  let currentLang = savedLang as 'en' | 'hi';
   
   if (langToggle) {
     langToggle.value = savedLang;
     langToggle.addEventListener('change', (e) => {
       const target = e.target as HTMLSelectElement;
-      currentLang = target.value;
+      currentLang = target.value as 'en' | 'hi';
       saveUserPreference('language', currentLang);
+      applyTranslations(currentLang);
     });
   }
+
+  applyTranslations(currentLang);
 
   // Eligibility Checker
   const btnCheck = document.getElementById('btn-check-eligibility');
