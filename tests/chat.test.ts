@@ -73,12 +73,19 @@ describe('Chat UI', () => {
     form.dispatchEvent(new Event('submit'));
     await new Promise(r => setTimeout(r, 0));
     
-    expect(actionsService.speakText).toHaveBeenCalledWith('Hello', 'en');
+    expect(actionsService.speakText).toHaveBeenCalledWith('Hello', 'en', expect.any(Function), expect.any(Function));
+    
+    // Test callbacks
+    const speakCall = (actionsService.speakText as jest.Mock).mock.calls[0];
+    const onStart = speakCall[2];
+    const onEnd = speakCall[3];
+    onStart();
+    onEnd();
   });
 
   it('should toggle voice output', async () => {
     initializeChat('chat-form', 'chat-input', 'chat-display');
-    const toggleBtn = document.getElementById('btn-toggle-voice');
+    const toggleBtn = document.getElementById('btn-toggle-voice') as HTMLButtonElement;
     
     // Toggle off
     toggleBtn?.dispatchEvent(new Event('click'));
@@ -122,8 +129,16 @@ describe('Chat UI', () => {
 
   it('should handle Voice Input click', () => {
     initializeChat('chat-form', 'chat-input', 'chat-display');
-    document.getElementById('voice-btn')?.dispatchEvent(new Event('click'));
+    const voiceBtn = document.getElementById('voice-btn');
+    voiceBtn?.dispatchEvent(new Event('click'));
     expect(actionsService.stopSpeaking).toHaveBeenCalled();
+    
+    // Capture and execute callbacks for coverage
+    const initCall = (actionsService.initVoiceInput as jest.Mock).mock.calls[0];
+    const onStart = initCall[3];
+    const onEnd = initCall[4];
+    onStart();
+    onEnd();
   });
 
   it('should trigger guide me correctly based on language', async () => {

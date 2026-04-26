@@ -23,6 +23,7 @@
         <div class="header-container">
           <div class="app-title-group">
             <h1 id="header-title">AI Chat</h1>
+            <span id="context-chip" class="context-chip">User: Ready | Lang: English</span>
           </div>
           <nav role="navigation" aria-label="Main Navigation" class="header-nav">
             <div class="custom-select-wrapper">
@@ -139,7 +140,11 @@
               <option value="yes">Citizen</option>
               <option value="no">Not a Citizen</option>
             </select>
-            <button id="btn-check-eligibility" class="gradient-btn-purple shrink">Check</button>
+            <select id="eligibility-voterid" aria-label="Do you have a Voter ID?">
+              <option value="yes">Have Voter ID</option>
+              <option value="no">No Voter ID</option>
+            </select>
+            <button id="btn-check-eligibility" class="gradient-btn-purple shrink">Plan</button>
           </div>
           <div id="eligibility-result" class="eligibility-result" aria-live="polite"></div>
         </div>

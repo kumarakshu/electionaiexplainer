@@ -42,7 +42,9 @@ export function downloadCalendarReminder(onError: (msg: string) => void): void {
 export function initVoiceInput(
   inputEl: HTMLInputElement, 
   onResult: (text: string) => void,
-  onError: (msg: string) => void
+  onError: (msg: string) => void,
+  onStart?: () => void,
+  onEnd?: () => void
 ): void {
   try {
     // Securely check for SpeechRecognition API
@@ -52,6 +54,8 @@ export function initVoiceInput(
       maxAlternatives: number;
       onresult: ((event: { results: { transcript: string }[][] }) => void) | null;
       onerror: ((event: { error: string }) => void) | null;
+      onstart: (() => void) | null;
+      onend: (() => void) | null;
       start: () => void;
     }
     type SpeechRecogConstructor = { new(): SpeechRecognitionShape };
@@ -68,6 +72,14 @@ export function initVoiceInput(
     recognition.lang = 'en-IN'; // Optimized for Hinglish/Indian English matching Gemini default
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      if (onStart) onStart();
+    };
+
+    recognition.onend = () => {
+      if (onEnd) onEnd();
+    };
 
     recognition.onresult = (event: { results: { transcript: string }[][] }) => {
       const transcript = event.results[0][0].transcript;
@@ -97,7 +109,7 @@ export function initVoiceInput(
 
 let currentUtterance: SpeechSynthesisUtterance | null = null;
 
-export function speakText(text: string, lang: string = 'en-IN'): void {
+export function speakText(text: string, lang: string = 'en-IN', onStart?: () => void, onEnd?: () => void): void {
   if (!window.speechSynthesis) return;
   
   // Stop any ongoing speech
@@ -109,6 +121,18 @@ export function speakText(text: string, lang: string = 'en-IN'): void {
   currentUtterance = new SpeechSynthesisUtterance(cleanText);
   currentUtterance.lang = lang === 'hi' ? 'hi-IN' : 'en-IN';
   currentUtterance.rate = 1.0;
+  
+  currentUtterance.onstart = () => {
+    if (onStart) onStart();
+  };
+  
+  currentUtterance.onend = () => {
+    if (onEnd) onEnd();
+  };
+  
+  currentUtterance.onerror = () => {
+    if (onEnd) onEnd();
+  };
   
   window.speechSynthesis.speak(currentUtterance);
 }

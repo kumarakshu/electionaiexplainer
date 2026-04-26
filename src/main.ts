@@ -116,34 +116,59 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   applyTranslations(currentLang);
 
-  // Eligibility Checker
+  // Eligibility Checker & Voting Plan Engine
   const btnCheck = document.getElementById('btn-check-eligibility');
   const ageInput = document.getElementById('eligibility-age') as HTMLInputElement | null;
   const citizenInput = document.getElementById('eligibility-citizen') as HTMLSelectElement | null;
+  const voterIdInput = document.getElementById('eligibility-voterid') as HTMLSelectElement | null;
   const eligibilityResult = document.getElementById('eligibility-result');
+  const contextChip = document.getElementById('context-chip');
 
-  if (btnCheck && ageInput && citizenInput && eligibilityResult) {
+  function updateContextChip(userType: string) {
+    if (contextChip) {
+      contextChip.textContent = `User: ${userType} | Lang: ${currentLang.toUpperCase()}`;
+    }
+  }
+
+  if (btnCheck && ageInput && citizenInput && voterIdInput && eligibilityResult) {
     btnCheck.addEventListener('click', () => {
       const age = parseInt(ageInput.value, 10);
       const isCitizen = citizenInput.value === 'yes';
+      const hasVoterId = voterIdInput.value === 'yes';
 
       if (isNaN(age) || age < 1) {
-        eligibilityResult.textContent = currentLang === 'hi' ? 'कृपया सही उम्र दर्ज करें।' : 'Please enter a valid age.';
-        eligibilityResult.className = 'eligibility-result error';
+        eligibilityResult.innerHTML = currentLang === 'hi' ? '<span class="error">कृपया सही उम्र दर्ज करें।</span>' : '<span class="error">Please enter a valid age.</span>';
+        updateContextChip('Unknown');
         return;
       }
 
+      let planHtml = '';
+      
       if (age >= 18 && isCitizen) {
-        eligibilityResult.textContent = currentLang === 'hi' 
-          ? 'बधाई हो! आप मतदान करने के योग्य हैं। रजिस्ट्रेशन के लिए असिस्टेंट से पूछें।' 
-          : 'Congratulations! You are eligible to vote. Ask the assistant how to register.';
-        eligibilityResult.className = 'eligibility-result success';
+        const title = currentLang === 'hi' ? 'आपका मतदान प्लान' : 'Your Voting Plan';
+        const eligibleTxt = currentLang === 'hi' ? 'आप मतदान के योग्य हैं ✅' : 'You are eligible to vote ✅';
+        
+        if (hasVoterId) {
+          const readyTxt = currentLang === 'hi' ? 'आपके पास वोटर आईडी है ✅' : 'You have a Voter ID ✅';
+          const nextStep = currentLang === 'hi' ? 'मतदान केंद्र खोजें और वोट दें!' : 'Find your polling booth and vote!';
+          planHtml = `<div class="plan-card"><h4>${title}</h4><p>${eligibleTxt}</p><p>${readyTxt}</p><ul><li><strong>Next Step:</strong> ${nextStep}</li></ul></div>`;
+          updateContextChip('Ready Voter');
+        } else {
+          const noIdTxt = currentLang === 'hi' ? 'आपके पास वोटर आईडी नहीं है ❗' : 'You do not have a Voter ID ❗';
+          const nextStep = currentLang === 'hi' ? 'ऑनलाइन रजिस्टर करें (voters.eci.gov.in)' : 'Register online at voters.eci.gov.in';
+          const docs = currentLang === 'hi' ? 'आधार कार्ड, निवास प्रमाण पत्र' : 'Aadhaar Card, Address Proof';
+          planHtml = `<div class="plan-card"><h4>${title}</h4><p>${eligibleTxt}</p><p>${noIdTxt}</p><ul><li><strong>Next Step:</strong> ${nextStep}</li><li><strong>Required:</strong> ${docs}</li></ul></div>`;
+          updateContextChip('First-time Voter');
+        }
       } else {
-        eligibilityResult.textContent = currentLang === 'hi'
-          ? 'क्षमा करें, आप अभी मतदान के योग्य नहीं हैं। मतदान के लिए आयु 18+ और नागरिक होना आवश्यक है।'
-          : 'Sorry, you are not eligible to vote yet. Must be 18+ and a citizen.';
-        eligibilityResult.className = 'eligibility-result error';
+        const title = currentLang === 'hi' ? 'आपका मतदान प्लान' : 'Your Voting Plan';
+        const notEligibleTxt = currentLang === 'hi' ? 'क्षमा करें, आप अभी मतदान के योग्य नहीं हैं ❌' : 'Sorry, you are not eligible to vote yet ❌';
+        planHtml = `<div class="plan-card"><h4>${title}</h4><p>${notEligibleTxt}</p><ul><li>Must be 18+ and a Citizen.</li></ul></div>`;
+        updateContextChip('Ineligible');
       }
+      
+      // Safe assignment without scripts
+      eligibilityResult.innerHTML = planHtml;
     });
   }
 

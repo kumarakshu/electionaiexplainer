@@ -87,6 +87,27 @@ describe('UI Actions', () => {
       initVoiceInput(document.createElement('input'), jest.fn(), err);
       expect(err).toHaveBeenCalledWith('Failed to start voice recognition.');
     });
+
+    it('should trigger onStart and onEnd callbacks', () => {
+      const input = document.createElement('input');
+      const onStart = jest.fn();
+      const onEnd = jest.fn();
+
+      class MockSR {
+        static lastInstance: MockSR;
+        start() {}
+        onstart!: () => void;
+        onend!: () => void;
+        constructor() { MockSR.lastInstance = this; }
+      }
+      Object.defineProperty(window, 'SpeechRecognition', { value: MockSR, configurable: true });
+
+      initVoiceInput(input, jest.fn(), jest.fn(), onStart, onEnd);
+      MockSR.lastInstance.onstart();
+      MockSR.lastInstance.onend();
+      expect(onStart).toHaveBeenCalled();
+      expect(onEnd).toHaveBeenCalled();
+    });
   });
 
   describe('Speech Synthesis', () => {
@@ -122,6 +143,20 @@ describe('UI Actions', () => {
     it('should speak text with Hindi', () => {
       speakText('नमस्ते', 'hi');
       expect(mockSpeak).toHaveBeenCalled();
+    });
+
+    it('should trigger onStart and onEnd callbacks', () => {
+      const onStart = jest.fn();
+      const onEnd = jest.fn();
+      speakText('test', 'en', onStart, onEnd);
+      
+      const utterance = mockSpeak.mock.calls[0][0];
+      utterance.onstart();
+      utterance.onend();
+      utterance.onerror();
+      
+      expect(onStart).toHaveBeenCalledTimes(1);
+      expect(onEnd).toHaveBeenCalledTimes(2);
     });
 
     it('should do nothing if speechSynthesis is not available', () => {

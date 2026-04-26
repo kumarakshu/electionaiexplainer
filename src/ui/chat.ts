@@ -40,7 +40,10 @@ export function initializeChat(
       appendMessage(display, responseText, 'assistant');
       
       if (voiceOutputEnabled) {
-        speakText(responseText, lang);
+        speakText(responseText, lang, 
+          () => btnToggleVoice?.classList.add('speaking'),
+          () => btnToggleVoice?.classList.remove('speaking')
+        );
       }
     } catch (err: unknown) {
       removeElement(loadingId);
@@ -86,7 +89,10 @@ export function initializeChat(
       stopSpeaking(); // Stop AI voice if user starts talking
       initVoiceInput(input, () => {
         form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-      }, (msg) => alert(msg));
+      }, (msg) => alert(msg),
+      () => btnVoiceInput.classList.add('listening'),
+      () => btnVoiceInput.classList.remove('listening')
+      );
     });
   }
 
