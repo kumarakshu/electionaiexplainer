@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="An interactive and easy-to-follow guide to understanding the election process, timelines, and voting steps." />
+    <title>Smart Election Assistant</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' ws: wss: http://localhost:* https://generativelanguage.googleapis.com; img-src 'self' data:;" />
+    <!-- Google Fonts for Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
+    
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <!-- Accessibility Landmark Navigation -->
+    <header role="banner" class="app-header">
+      <div class="header-container">
+        <h1>Smart Election Assistant</h1>
+        <nav role="navigation" aria-label="Main Navigation">
+          <button id="toggle-theme" aria-label="Toggle Dark Mode" title="Toggle Dark Mode">🌓</button>
+        </nav>
+      </div>
+    </header>
+
+    <main role="main" class="app-container">
+      
+      <!-- Timeline Section -->
+      <section id="election-timeline" class="timeline-section" aria-labelledby="timeline-heading">
+        <h2 id="timeline-heading">The Election Process Timeline</h2>
+        <div id="timeline-container" class="timeline" role="list">
+          <!-- Timeline items will be perfectly generated here via secure JS -->
+        </div>
+      </section>
+
+      <!-- Assistant Chat Section -->
+      <section id="assistant-chat" class="chat-section" aria-labelledby="chat-heading">
+        <h2 id="chat-heading">Ask the Election Assistant</h2>
+        <div id="chat-display" class="chat-display" role="log" aria-live="polite">
+          <!-- Chat messages dynamically added here -->
+          <div class="message assistant-message">
+            Hello! I am your Smart Election Assistant. I can help you understand voter registration, election timelines, or how to vote. Ask me anything!
+          </div>
+        </div>
+        
+        <div class="chat-actions-bar" aria-label="Quick Actions">
+          <button id="btn-guide-me" class="action-chip" aria-label="Start Guided Mode">🧠 Guide Me Step-by-Step</button>
+          <button id="btn-maps-booth" class="action-chip" aria-label="Find Polling Booth">📍 Polling Booth</button>
+          <button id="btn-calendar" class="action-chip" aria-label="Add Calendar Reminder">📅 Reminder</button>
+        </div>
+
+        <form id="chat-form" class="chat-controls" aria-label="Chat input configuration">
+          <!-- Hidden password input or prompt via JS if configured dynamically. For now, a simple text input. -->
+          <label for="chat-input" class="visually-hidden">Ask a question</label>
+          <div class="input-wrapper" style="display: flex; flex: 1; align-items: center; position: relative;">
+            <input 
+               type="text" 
+               id="chat-input" 
+               placeholder="Type your question..." 
+               aria-required="true"
+               required
+               autocomplete="off"
+               style="width: 100%; padding-right: 40px;"
+            />
+            <button type="button" id="voice-btn" aria-label="Use Voice Input" title="Speak" style="background: none; border: none; cursor: pointer; position: absolute; right: 10px; font-size: 1.2rem;">🎤</button>
+          </div>
+          <button type="submit" id="send-btn" aria-label="Send Message" class="primary-btn">Send</button>
+        </form>
+        
+        <div class="api-key-container">
+          <label for="api-key-input" class="visually-hidden">Enter Google Gemini API Key</label>
+          <input type="password" id="api-key-input" placeholder="Enter Gemini API Key (Required)" aria-required="true" />
+          <p class="api-key-warning">Your API key is only used locally for this session.</p>
+        </div>
+      </section>
+
+    </main>
+
+    <footer role="contentinfo" class="app-footer">
+      <p>Built with ❤️ and security in mind. 100% Client-Side. No personal data stored.</p>
+    </footer>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

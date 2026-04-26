@@ -1,0 +1,31 @@
+{
+  "name": "week2",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "jest --coverage",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/dompurify": "^3.0.5",
+    "@types/jest": "^30.0.0",
+    "eslint": "^10.2.1",
+    "eslint-config-prettier": "^10.1.8",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
+    "prettier": "^3.8.3",
+    "ts-jest": "^29.4.9",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.59.0",
+    "vite": "^8.0.9"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "dompurify": "^3.4.1"
+  }
+}
