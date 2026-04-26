@@ -77,7 +77,16 @@ export function initVoiceInput(
 
     recognition.onerror = (event: { error: string }) => {
       console.error('Speech recognition error', event.error);
-      onError('Voice input failed. Please check microphone permissions or try typing.');
+      
+      // Ignore normal termination or flaky network errors that don't need a user alert
+      if (event.error === 'no-speech' || event.error === 'aborted' || event.error === 'network') {
+        return; 
+      }
+      
+      // Only alert on critical issues like missing permissions
+      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+        onError('Voice input failed. Please check microphone permissions.');
+      }
     };
 
     recognition.start();

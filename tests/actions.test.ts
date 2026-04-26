@@ -75,8 +75,8 @@ describe('UI Actions', () => {
       expect(onRes).toHaveBeenCalledWith('test');
 
       // trigger error
-      MockSR.lastInstance.onerror({ error: 'fail' });
-      expect(onErr).toHaveBeenCalledWith('Voice input failed. Please check microphone permissions or try typing.');
+      MockSR.lastInstance.onerror({ error: 'not-allowed' });
+      expect(onErr).toHaveBeenCalledWith('Voice input failed. Please check microphone permissions.');
     });
 
     it('should catch init exceptions', () => {
