@@ -15,5 +15,5 @@ document.addEventListener('DOMContentLoaded', () => {
   renderTimeline('timeline-container');
 
   // Initialize the Chat interface
-  initializeChat('chat-form', 'chat-input', 'chat-display', 'api-key-input');
+  initializeChat('chat-form', 'chat-input', 'chat-display', import.meta.env.VITE_GEMINI_API_KEY);
 });

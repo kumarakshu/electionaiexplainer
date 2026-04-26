@@ -2,6 +2,8 @@ import { initializeChat } from '../src/ui/chat';
 import * as geminiService from '../src/services/gemini';
 import * as actionsService from '../src/ui/actions';
 
+declare const process: any;
+
 jest.mock('../src/services/gemini');
 jest.mock('../src/ui/actions');
 
@@ -9,9 +11,12 @@ describe('Chat UI', () => {
   let form: HTMLFormElement;
   let input: HTMLInputElement;
   let display: HTMLElement;
-  let apiKeyInput: HTMLInputElement;
+
+  const originalEnv = process.env;
 
   beforeEach(() => {
+    jest.resetModules();
+    process.env = { ...originalEnv };
     document.body.innerHTML = `
       <div id="chat-actions-bar">
         <button id="btn-guide-me"></button>
@@ -24,50 +29,52 @@ describe('Chat UI', () => {
         <button type="submit">Send</button>
       </form>
       <div id="chat-display"></div>
-      <input id="api-key-input" type="password" />
     `;
 
     form = document.getElementById('chat-form') as HTMLFormElement;
     input = document.getElementById('chat-input') as HTMLInputElement;
     display = document.getElementById('chat-display') as HTMLElement;
-    apiKeyInput = document.getElementById('api-key-input') as HTMLInputElement;
 
     window.alert = jest.fn();
     jest.clearAllMocks();
   });
 
+  afterAll(() => {
+    process.env = originalEnv;
+  });
+
   it('should not throw if elements are missing', () => {
-    initializeChat('invalid-form', 'chat-input', 'chat-display', 'api-key-input');
+    initializeChat('invalid-form', 'chat-input', 'chat-display');
     // Just asserting it handles nulls without error
     expect(true).toBe(true);
   });
 
   it('should ignore empty submission', () => {
-    initializeChat('chat-form', 'chat-input', 'chat-display', 'api-key-input');
+    initializeChat('chat-form', 'chat-input', 'chat-display');
     input.value = '   ';
     form.dispatchEvent(new Event('submit'));
     expect(display.children.length).toBe(0);
   });
 
   it('should prompt for API key if missing', () => {
-    initializeChat('chat-form', 'chat-input', 'chat-display', 'api-key-input');
+    initializeChat('chat-form', 'chat-input', 'chat-display');
     input.value = 'Hello';
-    apiKeyInput.value = ''; // Empty key
+    delete process.env.VITE_GEMINI_API_KEY;
     
     form.dispatchEvent(new Event('submit'));
     
     expect(display.children.length).toBe(1);
-    expect(display.children[0].textContent).toContain('Please enter a valid Gemini API Key');
+    expect(display.children[0].textContent).toContain('Please configure VITE_GEMINI_API_KEY in your .env file');
   });
 
   it('should append user message and call gemini service when API key is present', async () => {
-    initializeChat('chat-form', 'chat-input', 'chat-display', 'api-key-input');
+    initializeChat('chat-form', 'chat-input', 'chat-display');
     
     const mockResponse = 'I am your assistant';
     (geminiService.generateElectionResponse as jest.Mock).mockResolvedValue(mockResponse);
 
     input.value = 'Hello Assistant';
-    apiKeyInput.value = 'fake-api-key';
+    process.env.VITE_GEMINI_API_KEY = 'fake-api-key';
 
     // Disptach event
     form.dispatchEvent(new Event('submit'));
@@ -87,12 +94,12 @@ describe('Chat UI', () => {
   });
 
   it('should handle API errors gracefully', async () => {
-    initializeChat('chat-form', 'chat-input', 'chat-display', 'api-key-input');
+    initializeChat('chat-form', 'chat-input', 'chat-display');
     
     (geminiService.generateElectionResponse as jest.Mock).mockRejectedValue(new Error('Network error'));
 
     input.value = 'Hello Assistant';
-    apiKeyInput.value = 'fake-api-key';
+    process.env.VITE_GEMINI_API_KEY = 'fake-api-key';
 
     form.dispatchEvent(new Event('submit'));
     
@@ -102,12 +109,12 @@ describe('Chat UI', () => {
   });
 
   it('should handle API errors without message gracefully', async () => {
-    initializeChat('chat-form', 'chat-input', 'chat-display', 'api-key-input');
+    initializeChat('chat-form', 'chat-input', 'chat-display');
     
     (geminiService.generateElectionResponse as jest.Mock).mockRejectedValue({});
 
     input.value = 'Hello Assistant';
-    apiKeyInput.value = 'fake-api-key';
+    process.env.VITE_GEMINI_API_KEY = 'fake-api-key';
 
     form.dispatchEvent(new Event('submit'));
     
@@ -117,7 +124,7 @@ describe('Chat UI', () => {
   });
 
   it('should handle Voice Input click and trigger submit successfully', () => {
-    initializeChat('chat-form', 'chat-input', 'chat-display', 'api-key-input');
+    initializeChat('chat-form', 'chat-input', 'chat-display');
     const btnVoice = document.getElementById('voice-btn');
     
     // Simulate clicking voice button
@@ -140,14 +147,14 @@ describe('Chat UI', () => {
   });
 
   it('should handle Maps Booth click', () => {
-    initializeChat('chat-form', 'chat-input', 'chat-display', 'api-key-input');
+    initializeChat('chat-form', 'chat-input', 'chat-display');
     const btn = document.getElementById('btn-maps-booth');
     btn?.dispatchEvent(new Event('click'));
     expect(true).toBe(true);
   });
 
   it('should handle Calendar click and trigger error callback', () => {
-    initializeChat('chat-form', 'chat-input', 'chat-display', 'api-key-input');
+    initializeChat('chat-form', 'chat-input', 'chat-display');
     const btn = document.getElementById('btn-calendar');
     btn?.dispatchEvent(new Event('click'));
     
@@ -159,17 +166,17 @@ describe('Chat UI', () => {
   });
 
   it('should handle Guide Me click without API key', () => {
-    initializeChat('chat-form', 'chat-input', 'chat-display', 'api-key-input');
+    initializeChat('chat-form', 'chat-input', 'chat-display');
     const btn = document.getElementById('btn-guide-me');
-    apiKeyInput.value = '';
+    delete process.env.VITE_GEMINI_API_KEY;
     btn?.dispatchEvent(new Event('click'));
-    expect(display.lastChild?.textContent).toContain('Please enter a valid Gemini API Key above to start Guided Mode.');
+    expect(display.lastChild?.textContent).toContain('Please configure VITE_GEMINI_API_KEY in your .env file to start Guided Mode.');
   });
 
   it('should handle Guide Me click with API key', async () => {
-    initializeChat('chat-form', 'chat-input', 'chat-display', 'api-key-input');
+    initializeChat('chat-form', 'chat-input', 'chat-display');
     const btn = document.getElementById('btn-guide-me');
-    apiKeyInput.value = 'fake';
+    process.env.VITE_GEMINI_API_KEY = 'fake';
     (geminiService.generateElectionResponse as jest.Mock).mockResolvedValue('Guided Response');
     
     btn?.dispatchEvent(new Event('click'));
@@ -186,7 +193,7 @@ describe('Chat UI', () => {
     document.getElementById('btn-guide-me')?.remove();
 
     // Re-initialize to hit the branch where these elements are missing
-    initializeChat('chat-form', 'chat-input', 'chat-display', 'api-key-input');
+    initializeChat('chat-form', 'chat-input', 'chat-display');
 
     // No error should be thrown
     expect(true).toBe(true);

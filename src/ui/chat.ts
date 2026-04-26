@@ -5,15 +5,17 @@ import { initVoiceInput, openGoogleMapsBooth, downloadCalendarReminder } from '.
 export function initializeChat(
   formId: string, 
   inputId: string, 
-  displayId: string, 
-  apiKeyInputId: string
+  displayId: string,
+  apiKeyParam?: string
 ): void {
   const form = document.getElementById(formId) as HTMLFormElement;
   const input = document.getElementById(inputId) as HTMLInputElement;
   const display = document.getElementById(displayId);
-  const apiKeyInput = document.getElementById(apiKeyInputId) as HTMLInputElement;
 
-  if (!form || !input || !display || !apiKeyInput) return;
+  if (!form || !input || !display) return;
+  
+  // @ts-ignore
+  const getApiKey = () => apiKeyParam || (typeof process !== 'undefined' ? process.env.VITE_GEMINI_API_KEY : '');
 
   const chatHistory: ChatMessage[] = [];
 
@@ -62,9 +64,9 @@ export function initializeChat(
 
   if (btnGuideMe) {
     btnGuideMe.addEventListener('click', async () => {
-      const apiKey = apiKeyInput.value.trim();
+      const apiKey = getApiKey();
       if (!apiKey) {
-        appendMessage(display, 'Please enter a valid Gemini API Key above to start Guided Mode.', 'assistant');
+        appendMessage(display, 'Please configure VITE_GEMINI_API_KEY in your .env file to start Guided Mode.', 'assistant');
         return;
       }
       const triggerMessage = "I want to vote. Guide me step-by-step as an interactive decision assistant. First ask if I am 18+.";
@@ -76,12 +78,12 @@ export function initializeChat(
     e.preventDefault();
 
     const userMessage = input.value.trim();
-    const apiKey = apiKeyInput.value.trim();
+    const apiKey = getApiKey();
 
     if (!userMessage) return;
 
     if (!apiKey) {
-      appendMessage(display, 'Please enter a valid Gemini API Key above to chat with the assistant.', 'assistant');
+      appendMessage(display, 'Please configure VITE_GEMINI_API_KEY in your .env file to chat with the assistant.', 'assistant');
       return;
     }
 
