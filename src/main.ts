@@ -72,4 +72,82 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Initialize the Chat interface
   initializeChat('chat-form', 'chat-input', 'chat-display', import.meta.env.VITE_GEMINI_API_KEY, () => currentLang);
+
+  // ==========================================
+  // Premium Tab & Overlay Logic
+  // ==========================================
+  
+  const tabHome = document.getElementById('tab-home');
+  const tabChat = document.getElementById('tab-chat');
+  const chatForm = document.getElementById('chat-form');
+  const headerTitle = document.getElementById('header-title');
+  const navTabs = document.querySelectorAll('.nav-tab');
+
+  function switchTab(targetId: string) {
+    // Hide all tabs
+    tabHome?.classList.add('hidden-tab');
+    tabChat?.classList.add('hidden-tab');
+    
+    // Deactivate all nav buttons
+    navTabs.forEach(tab => tab.classList.remove('active'));
+    
+    // Activate target
+    const targetElement = document.getElementById(targetId);
+    if (targetElement) targetElement.classList.remove('hidden-tab');
+    
+    const targetNav = document.querySelector(`.nav-tab[data-tab="${targetId}"]`);
+    if (targetNav) targetNav.classList.add('active');
+
+    if (targetId === 'tab-chat') {
+      chatForm?.classList.remove('hidden-form');
+      if (headerTitle) headerTitle.textContent = 'AI Chat';
+    } else {
+      chatForm?.classList.add('hidden-form');
+      if (headerTitle) headerTitle.textContent = 'AI Assistant';
+    }
+  }
+
+  // Bind bottom nav clicks
+  navTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.getAttribute('data-tab');
+      if (target) switchTab(target);
+    });
+  });
+
+  // Home Hero Buttons
+  document.getElementById('btn-start-chat')?.addEventListener('click', () => switchTab('tab-chat'));
+  
+  // Note: btn-guide-me is already bound in chat.ts, but we just need to switch tab to see it happen
+  document.getElementById('btn-guide-me')?.addEventListener('click', () => switchTab('tab-chat'));
+
+  // Tool Cards opening overlays / triggering actions
+  const overlayEligibility = document.getElementById('overlay-eligibility');
+  const overlayTimeline = document.getElementById('overlay-timeline');
+  const overlayMaps = document.getElementById('maps-section');
+
+  document.getElementById('card-eligibility')?.addEventListener('click', () => overlayEligibility?.classList.remove('hidden-overlay'));
+  document.getElementById('card-timeline')?.addEventListener('click', () => overlayTimeline?.classList.remove('hidden-overlay'));
+  
+  document.getElementById('card-maps')?.addEventListener('click', () => {
+    // The maps overlay is managed by chat.ts openGoogleMapsBooth callback
+    document.getElementById('btn-maps-booth')?.click();
+  });
+  
+  document.getElementById('card-calendar')?.addEventListener('click', () => {
+    document.getElementById('btn-calendar')?.click();
+  });
+
+  // Close overlay buttons
+  document.querySelectorAll('.close-overlay').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const overlay = (e.target as HTMLElement).closest('.overlay');
+      if (overlay) overlay.classList.add('hidden-overlay');
+    });
+  });
+  
+  // Custom close for maps overlay which uses a specific button ID for tests
+  document.getElementById('btn-close-maps')?.addEventListener('click', () => {
+    overlayMaps?.classList.add('hidden-overlay');
+  });
 });
