@@ -2,7 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#4F46E5" />
     <meta name="description" content="An interactive and easy-to-follow guide to understanding the election process, timelines, and voting steps." />
     <title>Smart Election Assistant</title>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' ws: wss: http://localhost:* https://generativelanguage.googleapis.com https://firestore.googleapis.com https://firebase.googleapis.com; frame-src 'self' https://maps.google.com; img-src 'self' data:;" />
@@ -14,96 +15,113 @@
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <!-- Accessibility Landmark Navigation -->
-    <header role="banner" class="app-header">
-      <div class="header-container">
-        <h1>Smart Election Assistant</h1>
-        <nav role="navigation" aria-label="Main Navigation">
-          <select id="lang-toggle" class="lang-select" aria-label="Select Language">
-            <option value="en">English</option>
-            <option value="hi">हिंदी (Hindi)</option>
-          </select>
-          <button id="toggle-theme" aria-label="Toggle Dark Mode" title="Toggle Dark Mode">🌓</button>
-        </nav>
-      </div>
-    </header>
-
-    <main role="main" class="app-container">
+    <!-- Mobile App Layout Wrapper -->
+    <div class="app-layout">
       
-      <!-- Eligibility Checker Section -->
-      <section id="eligibility-checker" class="card-section" aria-labelledby="eligibility-heading">
-        <h2 id="eligibility-heading">Quick Eligibility Check</h2>
-        <div class="eligibility-controls">
-          <input type="number" id="eligibility-age" placeholder="Enter your age" aria-label="Your Age" min="1" max="120" />
-          <select id="eligibility-citizen" aria-label="Are you a citizen?">
-            <option value="yes">I am a Citizen</option>
-            <option value="no">Not a Citizen</option>
-          </select>
-          <button id="btn-check-eligibility" class="primary-btn">Check</button>
-        </div>
-        <div id="eligibility-result" class="eligibility-result" aria-live="polite"></div>
-      </section>
-
-      <!-- Timeline Section -->
-      <section id="election-timeline" class="timeline-section card-section" aria-labelledby="timeline-heading">
-        <h2 id="timeline-heading">The Election Process Timeline</h2>
-        <div id="timeline-container" class="timeline" role="list">
-          <!-- Timeline items will be perfectly generated here via secure JS -->
-        </div>
-      </section>
-
-      <!-- Maps Embedding Section -->
-      <section id="maps-section" class="maps-section card-section hidden" aria-labelledby="maps-heading">
-        <h2 id="maps-heading">Your Nearest Polling Booth</h2>
-        <div id="maps-container" class="maps-container">
-          <!-- Maps iframe will be embedded here -->
-        </div>
-        <button id="btn-close-maps" class="secondary-btn">Close Map</button>
-      </section>
-
-      <!-- Assistant Chat Section -->
-      <section id="assistant-chat" class="chat-section card-section" aria-labelledby="chat-heading">
-        <h2 id="chat-heading">Ask the Election Assistant</h2>
-        <div id="chat-display" class="chat-display" role="log" aria-live="polite">
-          <!-- Chat messages dynamically added here -->
-          <div class="message assistant-message">
-            Hello! I am your Smart Election Assistant. I can help you understand voter registration, election timelines, or how to vote. Ask me anything!
+      <!-- Fixed Glass Header -->
+      <header role="banner" class="app-header glass">
+        <div class="header-container">
+          <div class="app-title-group">
+            <h1>Election Assistant</h1>
           </div>
+          <nav role="navigation" aria-label="Main Navigation" class="header-nav">
+            <select id="lang-toggle" class="lang-select" aria-label="Select Language">
+              <option value="en">English</option>
+              <option value="hi">हिंदी</option>
+            </select>
+            <button id="toggle-theme" class="icon-btn" aria-label="Toggle Dark Mode" title="Toggle Dark Mode">🌓</button>
+          </nav>
         </div>
-        
-        <div class="chat-actions-bar" aria-label="Quick Actions">
-          <button id="btn-guide-me" class="action-chip" aria-label="Start Guided Mode">🧠 Guide Me Step-by-Step</button>
-          <button id="btn-maps-booth" class="action-chip" aria-label="Find Polling Booth">📍 Nearest Polling Booth</button>
-          <button id="btn-calendar" class="action-chip" aria-label="Add Calendar Reminder">📅 Add to Google Calendar</button>
-          <button id="btn-toggle-voice" class="action-chip voice-active" aria-label="Toggle Voice Output">🔊 Voice Output: ON</button>
+      </header>
+
+      <!-- Scrollable Main Content -->
+      <main role="main" class="main-scroll-area">
+        <div class="content-wrapper">
+
+          <!-- Extra Tools Accordion -->
+          <details class="tools-accordion" aria-label="Election Tools">
+            <summary class="accordion-header">🛠️ Tools & Info (Tap to Expand)</summary>
+            <div class="accordion-content">
+              <!-- Eligibility Checker Section -->
+              <section id="eligibility-checker" class="card-section compact-card" aria-labelledby="eligibility-heading">
+                <h2 id="eligibility-heading">Quick Eligibility Check</h2>
+                <div class="eligibility-controls">
+                  <input type="number" id="eligibility-age" placeholder="Age" aria-label="Your Age" min="1" max="120" />
+                  <select id="eligibility-citizen" aria-label="Are you a citizen?">
+                    <option value="yes">Citizen</option>
+                    <option value="no">Not a Citizen</option>
+                  </select>
+                  <button id="btn-check-eligibility" class="primary-btn shrink">Check</button>
+                </div>
+                <div id="eligibility-result" class="eligibility-result" aria-live="polite"></div>
+              </section>
+
+              <!-- Timeline Section -->
+              <section id="election-timeline" class="timeline-section card-section compact-card" aria-labelledby="timeline-heading">
+                <h2 id="timeline-heading">Process Timeline</h2>
+                <div id="timeline-container" class="timeline" role="list">
+                  <!-- Timeline items will be perfectly generated here via secure JS -->
+                </div>
+              </section>
+            </div>
+          </details>
+
+          <!-- Maps Embedding Section (Dynamically shown) -->
+          <section id="maps-section" class="maps-section card-section hidden" aria-labelledby="maps-heading">
+            <h2 id="maps-heading">Nearest Polling Booth</h2>
+            <div id="maps-container" class="maps-container">
+              <!-- Maps iframe will be embedded here -->
+            </div>
+            <button id="btn-close-maps" class="secondary-btn w-full mt-2">Close Map</button>
+          </section>
+
+          <!-- Assistant Chat Display -->
+          <section id="assistant-chat" class="chat-section" aria-labelledby="chat-heading">
+            <h2 id="chat-heading" class="visually-hidden">Ask the Election Assistant</h2>
+            
+            <div id="chat-display" class="chat-display" role="log" aria-live="polite">
+              <!-- Chat messages dynamically added here -->
+              <div class="message assistant-message">
+                Hello! I am your Smart Election Assistant. I can help you understand voter registration, election timelines, or how to vote. Ask me anything!
+              </div>
+            </div>
+          </section>
+          
+        </div>
+      </main>
+
+      <!-- Fixed Bottom Navigation / Chat Bar -->
+      <footer class="bottom-action-bar glass">
+        <!-- Scrollable Action Chips -->
+        <div class="chat-actions-scroll-wrapper">
+          <div class="chat-actions-bar" aria-label="Quick Actions">
+            <button id="btn-guide-me" class="action-chip" aria-label="Start Guided Mode">🧠 Guide Me</button>
+            <button id="btn-maps-booth" class="action-chip" aria-label="Find Polling Booth">📍 Nearest Booth</button>
+            <button id="btn-calendar" class="action-chip" aria-label="Add Calendar Reminder">📅 Reminder</button>
+            <button id="btn-toggle-voice" class="action-chip voice-active" aria-label="Toggle Voice Output">🔊 Voice: ON</button>
+          </div>
         </div>
 
         <form id="chat-form" class="chat-controls" aria-label="Chat input configuration">
-          <!-- Hidden password input or prompt via JS if configured dynamically. For now, a simple text input. -->
           <label for="chat-input" class="visually-hidden">Ask a question</label>
-          <div class="input-wrapper" style="display: flex; flex: 1; align-items: center; position: relative;">
+          <div class="input-wrapper">
             <input 
                type="text" 
                id="chat-input" 
-               placeholder="Type your question..." 
+               placeholder="Type a message..." 
                aria-required="true"
                required
                autocomplete="off"
-               style="width: 100%; padding-right: 40px;"
             />
-            <button type="button" id="voice-btn" aria-label="Use Voice Input" title="Speak" style="background: none; border: none; cursor: pointer; position: absolute; right: 10px; font-size: 1.2rem;">🎤</button>
+            <button type="button" id="voice-btn" class="mic-btn" aria-label="Use Voice Input" title="Speak">🎤</button>
           </div>
-          <button type="submit" id="send-btn" aria-label="Send Message" class="primary-btn">Send</button>
+          <button type="submit" id="send-btn" aria-label="Send Message" class="send-btn primary-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+          </button>
         </form>
-        
-      </section>
+      </footer>
 
-    </main>
-
-    <footer role="contentinfo" class="app-footer">
-      <p>Built with ❤️ and security in mind. 100% Client-Side. Powered by Firebase & Gemini AI.</p>
-    </footer>
-
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
