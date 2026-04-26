@@ -22,14 +22,21 @@
       <header role="banner" class="app-header glass">
         <div class="header-container">
           <div class="app-title-group">
-            <h1 id="header-title">AI Assistant</h1>
+            <h1 id="header-title">AI Chat</h1>
           </div>
           <nav role="navigation" aria-label="Main Navigation" class="header-nav">
-            <select id="lang-toggle" class="lang-select" aria-label="Select Language">
-              <option value="en">English</option>
-              <option value="hi">हिंदी</option>
-            </select>
-            <button id="toggle-theme" class="icon-btn" aria-label="Toggle Dark Mode" title="Toggle Dark Mode">🌓</button>
+            <div class="custom-select-wrapper">
+              <select id="lang-toggle" class="lang-select" aria-label="Select Language">
+                <option value="en">English</option>
+                <option value="hi">Hindi</option>
+              </select>
+              <svg class="select-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <button id="toggle-theme" class="icon-btn theme-toggle-btn" aria-label="Toggle Dark Mode" title="Toggle Dark Mode">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM12 20V4C16.4183 4 20 7.58172 20 12C20 16.4183 16.4183 20 12 20Z"></path>
+              </svg>
+            </button>
           </nav>
         </div>
       </header>
@@ -124,7 +131,7 @@
       <!-- OVERLAYS (Hidden by default, shown when Home tool cards are clicked) -->
       <div id="overlay-eligibility" class="overlay hidden-overlay">
         <div class="overlay-content card-section compact-card">
-          <button class="close-overlay">×</button>
+          <button class="close-overlay" id="btn-close-eligibility">×</button>
           <h2 id="eligibility-heading">Eligibility Check</h2>
           <div class="eligibility-controls">
             <input type="number" id="eligibility-age" placeholder="Age" aria-label="Your Age" min="1" max="120" />
@@ -140,14 +147,14 @@
 
       <div id="overlay-timeline" class="overlay hidden-overlay">
         <div class="overlay-content card-section compact-card timeline-overlay-box">
-          <button class="close-overlay">×</button>
+          <button class="close-overlay" id="btn-close-timeline">×</button>
           <h2 id="timeline-heading">Process Timeline</h2>
           <div id="timeline-container" class="timeline" role="list"></div>
         </div>
       </div>
 
-      <!-- Maps Embedding Section (Dynamically shown) -->
-      <section id="maps-section" class="overlay hidden-overlay" aria-labelledby="maps-heading">
+      <!-- Maps Embedding Section (Dynamically shown). Note: uses 'hidden' instead of 'hidden-overlay' for chat.ts compatibility -->
+      <section id="maps-section" class="overlay hidden" aria-labelledby="maps-heading">
         <div class="overlay-content maps-overlay-box">
           <h2 id="maps-heading">Nearest Polling Booth</h2>
           <div id="maps-container" class="maps-container"></div>
@@ -158,19 +165,7 @@
       <!-- Fixed Bottom Navigation / Chat Bar -->
       <footer class="bottom-action-bar glass">
         
-        <!-- Bottom Nav Tabs (Visible when NOT in chat, or always visible but toggles view) -->
-        <nav id="bottom-tabs" class="bottom-tabs">
-          <button class="nav-tab active" data-tab="tab-home">
-             <span class="nav-icon">🏠</span>
-             <span class="nav-label">Home</span>
-          </button>
-          <button class="nav-tab" data-tab="tab-chat">
-             <span class="nav-icon">💬</span>
-             <span class="nav-label">Chat</span>
-          </button>
-        </nav>
-
-        <!-- Chat Input Form (Visible ONLY when in Chat Tab) -->
+        <!-- Chat Input Form (Visible ONLY when in Chat Tab, positioned ABOVE the nav tabs) -->
         <form id="chat-form" class="chat-controls hidden-form" aria-label="Chat input configuration">
           <label for="chat-input" class="visually-hidden">Ask a question</label>
           <div class="modern-input-wrapper">
@@ -189,6 +184,19 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
           </button>
         </form>
+
+        <!-- Bottom Nav Tabs -->
+        <nav id="bottom-tabs" class="bottom-tabs">
+          <button class="nav-tab active" data-tab="tab-home">
+             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+             <span class="nav-label">Home</span>
+          </button>
+          <button class="nav-tab" data-tab="tab-chat">
+             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+             <span class="nav-label">Chat</span>
+          </button>
+        </nav>
+
       </footer>
 
     </div>
