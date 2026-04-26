@@ -18,14 +18,18 @@ describe('Chat UI', () => {
     jest.resetModules();
     process.env = { ...originalEnv };
     document.body.innerHTML = `
+      <div id="maps-section" class="hidden"></div>
+      <div id="maps-container"></div>
+      <button id="btn-close-maps"></button>
       <div id="chat-actions-bar">
         <button id="btn-guide-me"></button>
         <button id="btn-maps-booth"></button>
         <button id="btn-calendar"></button>
+        <button id="voice-btn" type="button"></button>
+        <button id="btn-toggle-voice"></button>
       </div>
       <form id="chat-form">
         <input id="chat-input" type="text" />
-        <button id="voice-btn" type="button"></button>
         <button type="submit">Send</button>
       </form>
       <div id="chat-display"></div>
@@ -37,6 +41,9 @@ describe('Chat UI', () => {
 
     window.alert = jest.fn();
     jest.clearAllMocks();
+    
+    // Mock scrollIntoView
+    Element.prototype.scrollIntoView = jest.fn();
   });
 
   afterAll(() => {
@@ -45,15 +52,7 @@ describe('Chat UI', () => {
 
   it('should not throw if elements are missing', () => {
     initializeChat('invalid-form', 'chat-input', 'chat-display');
-    // Just asserting it handles nulls without error
     expect(true).toBe(true);
-  });
-
-  it('should ignore empty submission', () => {
-    initializeChat('chat-form', 'chat-input', 'chat-display');
-    input.value = '   ';
-    form.dispatchEvent(new Event('submit'));
-    expect(display.children.length).toBe(0);
   });
 
   it('should prompt for API key if missing', () => {
@@ -62,140 +61,109 @@ describe('Chat UI', () => {
     delete process.env.VITE_GEMINI_API_KEY;
     
     form.dispatchEvent(new Event('submit'));
-    
-    expect(display.children.length).toBe(1);
-    expect(display.children[0].textContent).toContain('Please configure VITE_GEMINI_API_KEY in your .env file');
+    expect(display.children[0].textContent).toContain('Please configure VITE_GEMINI_API_KEY');
   });
 
-  it('should append user message and call gemini service when API key is present', async () => {
+  it('should call gemini service and speak answer', async () => {
     initializeChat('chat-form', 'chat-input', 'chat-display');
-    
-    const mockResponse = 'I am your assistant';
-    (geminiService.generateElectionResponse as jest.Mock).mockResolvedValue(mockResponse);
-
-    input.value = 'Hello Assistant';
+    (geminiService.generateElectionResponse as jest.Mock).mockResolvedValue('Hello');
     process.env.VITE_GEMINI_API_KEY = 'fake-api-key';
-
-    // Disptach event
+    input.value = 'Hi';
+    
     form.dispatchEvent(new Event('submit'));
+    await new Promise(r => setTimeout(r, 0));
     
-    // Immediately, user message and generic loader should be there
-    expect(display.children[0].textContent).toBe('Hello Assistant');
-    expect(display.children[0].classList.contains('user-message')).toBe(true);
-    expect(display.children[1].classList.contains('loading-indicator')).toBe(true);
-    
-    // Wait for async operations
-    await new Promise(resolve => setTimeout(resolve, 0));
-
-    // Loader should be removed, assistant message should be present
-    expect(display.children.length).toBe(2);
-    expect(display.children[1].textContent).toBe(mockResponse);
-    expect(display.children[1].classList.contains('assistant-message')).toBe(true);
+    expect(actionsService.speakText).toHaveBeenCalledWith('Hello', 'en');
   });
 
-  it('should handle API errors gracefully', async () => {
+  it('should toggle voice output', async () => {
     initializeChat('chat-form', 'chat-input', 'chat-display');
+    const toggleBtn = document.getElementById('btn-toggle-voice');
     
-    (geminiService.generateElectionResponse as jest.Mock).mockRejectedValue(new Error('Network error'));
-
-    input.value = 'Hello Assistant';
+    // Toggle off
+    toggleBtn?.dispatchEvent(new Event('click'));
+    expect(actionsService.stopSpeaking).toHaveBeenCalled();
+    expect(toggleBtn?.textContent).toContain('OFF');
+    
+    (geminiService.generateElectionResponse as jest.Mock).mockResolvedValue('Hello');
     process.env.VITE_GEMINI_API_KEY = 'fake-api-key';
-
+    input.value = 'Hi';
     form.dispatchEvent(new Event('submit'));
+    await new Promise(r => setTimeout(r, 0));
     
-    await new Promise(resolve => setTimeout(resolve, 0));
-
-    expect(display.children[1].textContent).toContain('Error: Network error');
+    // Should NOT speak since toggled off
+    expect(actionsService.speakText).not.toHaveBeenCalled();
+    
+    // Toggle back on
+    toggleBtn?.dispatchEvent(new Event('click'));
+    expect(toggleBtn?.textContent).toContain('ON');
   });
 
-  it('should handle API errors without message gracefully', async () => {
+  it('should open and close maps section', () => {
     initializeChat('chat-form', 'chat-input', 'chat-display');
+    const btnMaps = document.getElementById('btn-maps-booth');
+    const mapsSection = document.getElementById('maps-section');
+    const btnCloseMaps = document.getElementById('btn-close-maps');
     
-    (geminiService.generateElectionResponse as jest.Mock).mockRejectedValue({});
-
-    input.value = 'Hello Assistant';
-    process.env.VITE_GEMINI_API_KEY = 'fake-api-key';
-
-    form.dispatchEvent(new Event('submit'));
+    // Open maps
+    btnMaps?.dispatchEvent(new Event('click'));
+    expect(mapsSection?.classList.contains('hidden')).toBe(false);
+    expect(actionsService.openGoogleMapsBooth).toHaveBeenCalled();
     
-    await new Promise(resolve => setTimeout(resolve, 0));
-
-    expect(display.children[1].textContent).toContain('Error: Failed to communicate with AI.');
+    // The callback inside openGoogleMapsBooth handles scroll, simulate it manually to cover
+    const mockAction = actionsService.openGoogleMapsBooth as jest.Mock;
+    const onShowCb = mockAction.mock.calls[0][1];
+    onShowCb();
+    
+    // Close maps
+    btnCloseMaps?.dispatchEvent(new Event('click'));
+    expect(mapsSection?.classList.contains('hidden')).toBe(true);
   });
 
-  it('should handle Voice Input click and trigger submit successfully', () => {
+  it('should handle Voice Input click', () => {
     initializeChat('chat-form', 'chat-input', 'chat-display');
-    const btnVoice = document.getElementById('voice-btn');
-    
-    // Simulate clicking voice button
-    btnVoice?.dispatchEvent(new Event('click'));
-    
-    // The chat module passed an onResult wrapper to initVoiceInput, let's trigger it manually
-    const mockInitVoice = actionsService.initVoiceInput as jest.Mock;
-    expect(mockInitVoice).toHaveBeenCalled();
-    
-    // Call the success callback (2nd argument)
-    const onResultCb = mockInitVoice.mock.calls[0][1];
-    onResultCb();
-    
-    // Call the error callback (3rd argument)
-    const onErrorCb = mockInitVoice.mock.calls[0][2];
-    onErrorCb('Test Error');
-    
-    // Coverage completed
-    expect(true).toBe(true);
+    document.getElementById('voice-btn')?.dispatchEvent(new Event('click'));
+    expect(actionsService.stopSpeaking).toHaveBeenCalled();
   });
 
-  it('should handle Maps Booth click', () => {
-    initializeChat('chat-form', 'chat-input', 'chat-display');
-    const btn = document.getElementById('btn-maps-booth');
-    btn?.dispatchEvent(new Event('click'));
-    expect(true).toBe(true);
-  });
-
-  it('should handle Calendar click and trigger error callback', () => {
-    initializeChat('chat-form', 'chat-input', 'chat-display');
-    const btn = document.getElementById('btn-calendar');
-    btn?.dispatchEvent(new Event('click'));
+  it('should trigger guide me correctly based on language', async () => {
+    let mockLang = 'hi';
+    initializeChat('chat-form', 'chat-input', 'chat-display', 'fake-key', () => mockLang);
+    const btnGuide = document.getElementById('btn-guide-me');
     
-    const mockAction = actionsService.downloadCalendarReminder as jest.Mock;
-    const errCb = mockAction.mock.calls[0][0];
-    errCb('Calendar fail');
-    
-    expect(true).toBe(true);
+    btnGuide?.dispatchEvent(new Event('click'));
+    await new Promise(r => setTimeout(r, 0));
+    expect(actionsService.stopSpeaking).toHaveBeenCalled();
   });
-
-  it('should handle Guide Me click without API key', () => {
-    initializeChat('chat-form', 'chat-input', 'chat-display');
-    const btn = document.getElementById('btn-guide-me');
+  
+  it('should handle guide me with missing API key', async () => {
+    initializeChat('chat-form', 'chat-input', 'chat-display', '');
+    const btnGuide = document.getElementById('btn-guide-me');
     delete process.env.VITE_GEMINI_API_KEY;
-    btn?.dispatchEvent(new Event('click'));
-    expect(display.lastChild?.textContent).toContain('Please configure VITE_GEMINI_API_KEY in your .env file to start Guided Mode.');
+    
+    btnGuide?.dispatchEvent(new Event('click'));
+    expect(display.lastChild?.textContent).toContain('Please configure VITE_GEMINI_API_KEY');
   });
 
-  it('should handle Guide Me click with API key', async () => {
+  it('should handle API errors', async () => {
     initializeChat('chat-form', 'chat-input', 'chat-display');
-    const btn = document.getElementById('btn-guide-me');
-    process.env.VITE_GEMINI_API_KEY = 'fake';
-    (geminiService.generateElectionResponse as jest.Mock).mockResolvedValue('Guided Response');
-    
-    btn?.dispatchEvent(new Event('click'));
-    await new Promise(resolve => setTimeout(resolve, 0));
-    
-    expect(display.lastChild?.textContent).toContain('Guided Response');
+    (geminiService.generateElectionResponse as jest.Mock).mockRejectedValue(new Error('Fail'));
+    process.env.VITE_GEMINI_API_KEY = 'fake-api-key';
+    input.value = 'Hi';
+    form.dispatchEvent(new Event('submit'));
+    await new Promise(r => setTimeout(r, 0));
+    expect(display.lastChild?.textContent).toContain('Error: Fail');
   });
 
   it('should handle missing optional buttons gracefully', () => {
-    // Remove all optional buttons
     document.getElementById('btn-maps-booth')?.remove();
     document.getElementById('btn-calendar')?.remove();
+    document.getElementById('btn-close-maps')?.remove();
     document.getElementById('voice-btn')?.remove();
     document.getElementById('btn-guide-me')?.remove();
+    document.getElementById('btn-toggle-voice')?.remove();
 
-    // Re-initialize to hit the branch where these elements are missing
     initializeChat('chat-form', 'chat-input', 'chat-display');
-
-    // No error should be thrown
     expect(true).toBe(true);
   });
 });

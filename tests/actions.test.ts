@@ -1,4 +1,4 @@
-import { openGoogleMapsBooth, downloadCalendarReminder, initVoiceInput } from '../src/ui/actions';
+import { openGoogleMapsBooth, downloadCalendarReminder, initVoiceInput, speakText, stopSpeaking } from '../src/ui/actions';
 
 // Mock window globals not supported by JSDOM
 (window as unknown as { alert: jest.Mock }).alert = jest.fn();
@@ -9,37 +9,23 @@ describe('UI Actions', () => {
   });
 
   describe('openGoogleMapsBooth', () => {
-    it('should fallback when geolocation is unsupported', () => {
-      const windowOpenMock = jest.spyOn(window, 'open').mockImplementation();
-      const originalGeo = Object.getOwnPropertyDescriptor(navigator, 'geolocation');
-      Object.defineProperty(navigator, 'geolocation', { value: undefined, configurable: true });
+    it('should embed iframe in container and call onShow', () => {
+      document.body.innerHTML = '<div id="maps-container"></div>';
+      const onShow = jest.fn();
       
-      openGoogleMapsBooth();
-      expect(windowOpenMock).toHaveBeenCalledWith('https://www.google.com/maps/search/?api=1&query=polling+booth', '_blank', 'noopener,noreferrer');
+      openGoogleMapsBooth('maps-container', onShow);
       
-      if (originalGeo) Object.defineProperty(navigator, 'geolocation', originalGeo);
+      const container = document.getElementById('maps-container');
+      expect(container?.innerHTML).toContain('<iframe');
+      expect(onShow).toHaveBeenCalled();
     });
 
-    it('should open map on success', () => {
-      const windowOpenMock = jest.spyOn(window, 'open').mockImplementation();
-      const mockGeo = {
-        getCurrentPosition: jest.fn((success) => success({ coords: { latitude: 28, longitude: 77 } }))
-      };
-      Object.defineProperty(navigator, 'geolocation', { value: mockGeo, configurable: true });
+    it('should handle missing container', () => {
+      document.body.innerHTML = '';
+      const onShow = jest.fn();
       
-      openGoogleMapsBooth();
-      expect(windowOpenMock).toHaveBeenCalledWith('https://www.google.com/maps/search/?api=1&query=polling+booth', '_blank', 'noopener,noreferrer');
-    });
-
-    it('should fallback on error', () => {
-      const windowOpenMock = jest.spyOn(window, 'open').mockImplementation();
-      const mockGeo = {
-        getCurrentPosition: jest.fn((_success, error) => error(new Error('Denied')))
-      };
-      Object.defineProperty(navigator, 'geolocation', { value: mockGeo, configurable: true });
-      
-      openGoogleMapsBooth();
-      expect(windowOpenMock).toHaveBeenCalledWith('https://www.google.com/maps/search/?api=1&query=polling+booth', '_blank', 'noopener,noreferrer');
+      openGoogleMapsBooth('maps-container', onShow);
+      expect(onShow).not.toHaveBeenCalled();
     });
   });
 
@@ -100,6 +86,59 @@ describe('UI Actions', () => {
       const err = jest.fn();
       initVoiceInput(document.createElement('input'), jest.fn(), err);
       expect(err).toHaveBeenCalledWith('Failed to start voice recognition.');
+    });
+  });
+
+  describe('Speech Synthesis', () => {
+    let mockSpeak: jest.Mock;
+    let mockCancel: jest.Mock;
+
+    beforeEach(() => {
+      mockSpeak = jest.fn();
+      mockCancel = jest.fn();
+      Object.defineProperty(window, 'speechSynthesis', {
+        value: {
+          speak: mockSpeak,
+          cancel: mockCancel
+        },
+        configurable: true
+      });
+      // Mock SpeechSynthesisUtterance
+      (window as any).SpeechSynthesisUtterance = jest.fn().mockImplementation((text) => ({
+        text,
+        lang: 'en-US',
+        rate: 1
+      }));
+    });
+
+    it('should speak text with English default', () => {
+      speakText('hello *world*');
+      expect(mockCancel).toHaveBeenCalled();
+      expect(mockSpeak).toHaveBeenCalled();
+      // Verifying markdown removal
+      expect((window as any).SpeechSynthesisUtterance).toHaveBeenCalledWith('hello world');
+    });
+
+    it('should speak text with Hindi', () => {
+      speakText('नमस्ते', 'hi');
+      expect(mockSpeak).toHaveBeenCalled();
+    });
+
+    it('should do nothing if speechSynthesis is not available', () => {
+      Object.defineProperty(window, 'speechSynthesis', { value: undefined, configurable: true });
+      speakText('hello');
+      expect(mockSpeak).not.toHaveBeenCalled();
+    });
+
+    it('should stop speaking', () => {
+      stopSpeaking();
+      expect(mockCancel).toHaveBeenCalled();
+    });
+    
+    it('should do nothing on stop if not available', () => {
+      Object.defineProperty(window, 'speechSynthesis', { value: undefined, configurable: true });
+      stopSpeaking();
+      expect(mockCancel).not.toHaveBeenCalled();
     });
   });
 });
