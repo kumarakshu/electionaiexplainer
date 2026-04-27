@@ -12,7 +12,8 @@ Unlike traditional chatbots, Smart Election Assistant:
 - Adapts guidance dynamically
 - Provides actionable step-by-step decisions
 
-This transforms it from an information tool into a civic decision assistant.
+**This project transforms election information into actionable decision-making guidance.**
+**From chatbot → to civic decision assistant.**
 
 ## ⚙️ Architecture
 
@@ -20,7 +21,7 @@ User → UI → AI Engine → Decision Logic → Response
 
 ## 🌍 Real-World Impact
 
-Designed for first-time voters and rural users, this app ensures accessibility, clarity, and participation in democratic processes. **Works even in low-connectivity rural environments** using static cached timelines and guides when the network drops.
+**Designed for accessibility, low-network environments, and first-time voters.** This app ensures clarity and participation in democratic processes. **Works even in low-connectivity rural environments** using static cached timelines and guides when the network drops.
 
 ## ☁️ Deep Google Ecosystem Integration
 This application leverages multiple Google Services in a deeply integrated, real-world context:

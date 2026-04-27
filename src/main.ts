@@ -143,7 +143,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
       let planHtml = '';
+      let explanation = '';
       
+      const confIndicator = `<p style="font-size: 0.75rem; color: var(--primary); margin-top: 0.5rem; font-weight: bold;">Confidence: High (based on your inputs)</p>`;
+
       if (age >= 18 && isCitizen) {
         const title = currentLang === 'hi' ? 'आपका मतदान प्लान' : 'Your Voting Plan';
         const eligibleTxt = currentLang === 'hi' ? 'आप मतदान के योग्य हैं ✅' : 'You are eligible to vote ✅';
@@ -151,24 +154,53 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (hasVoterId) {
           const readyTxt = currentLang === 'hi' ? 'आपके पास वोटर आईडी है ✅' : 'You have a Voter ID ✅';
           const nextStep = currentLang === 'hi' ? 'मतदान केंद्र खोजें और वोट दें!' : 'Find your polling booth and vote!';
-          planHtml = `<div class="plan-card"><h4>${title}</h4><p>${eligibleTxt}</p><p>${readyTxt}</p><ul><li><strong>Next Step:</strong> ${nextStep}</li></ul></div>`;
+          explanation = currentLang === 'hi' 
+            ? 'चूंकि आपके पास पहले से ही वोटर आईडी है, आपको बस मतदान के दिन अपना पोलिंग बूथ ढूंढकर वोट डालना है।' 
+            : 'Since you already have a Voter ID, you just need to locate your polling booth and vote on election day.';
+          planHtml = `<div class="plan-card"><h4>${title}</h4><p>${eligibleTxt}</p><p>${readyTxt}</p><ul><li><strong>Next Step:</strong> ${nextStep}</li></ul>${confIndicator}</div>`;
           updateContextChip('Ready Voter');
         } else {
           const noIdTxt = currentLang === 'hi' ? 'आपके पास वोटर आईडी नहीं है ❗' : 'You do not have a Voter ID ❗';
           const nextStep = currentLang === 'hi' ? 'ऑनलाइन रजिस्टर करें (voters.eci.gov.in)' : 'Register online at voters.eci.gov.in';
           const docs = currentLang === 'hi' ? 'आधार कार्ड, निवास प्रमाण पत्र' : 'Aadhaar Card, Address Proof';
-          planHtml = `<div class="plan-card"><h4>${title}</h4><p>${eligibleTxt}</p><p>${noIdTxt}</p><ul><li><strong>Next Step:</strong> ${nextStep}</li><li><strong>Required:</strong> ${docs}</li></ul></div>`;
+          explanation = currentLang === 'hi' 
+            ? 'आपको वोट देने के लिए वोटर आईडी की आवश्यकता है। कृपया बताए गए दस्तावेजों के साथ ऑनलाइन आवेदन करें। आईडी मिलने के बाद आप वोट दे सकेंगे।' 
+            : 'You need to register because you don\'t have a voter ID. After registration, you will receive your ID and can vote.';
+          planHtml = `<div class="plan-card"><h4>${title}</h4><p>${eligibleTxt}</p><p>${noIdTxt}</p><ul><li><strong>Next Step:</strong> ${nextStep}</li><li><strong>Required:</strong> ${docs}</li></ul>${confIndicator}</div>`;
           updateContextChip('First-time Voter');
         }
       } else {
         const title = currentLang === 'hi' ? 'आपका मतदान प्लान' : 'Your Voting Plan';
         const notEligibleTxt = currentLang === 'hi' ? 'क्षमा करें, आप अभी मतदान के योग्य नहीं हैं ❌' : 'Sorry, you are not eligible to vote yet ❌';
-        planHtml = `<div class="plan-card"><h4>${title}</h4><p>${notEligibleTxt}</p><ul><li>Must be 18+ and a Citizen.</li></ul></div>`;
+        explanation = currentLang === 'hi' 
+            ? 'भारत में वोट देने के लिए आपकी उम्र 18 वर्ष या उससे अधिक होनी चाहिए और आपको भारत का नागरिक होना चाहिए।' 
+            : 'To vote in India, you must be at least 18 years old and a citizen of India.';
+        planHtml = `<div class="plan-card"><h4>${title}</h4><p>${notEligibleTxt}</p><ul><li>Must be 18+ and a Citizen.</li></ul>${confIndicator}</div>`;
         updateContextChip('Ineligible');
       }
       
+      const explainBtnTxt = currentLang === 'hi' ? 'इसे आसान शब्दों में समझाएं' : 'Explain this in simple terms';
+      
+      planHtml += `
+        <button id="btn-explain-plan" class="chip-btn" style="margin-top: 1rem; border: 1px solid var(--primary); color: var(--primary);">
+          ✨ ${explainBtnTxt}
+        </button>
+        <div id="explain-text" class="hidden plan-card" style="margin-top: 0.5rem; background: var(--bg); border-left: 4px solid var(--primary);">
+          <p style="font-size: 0.9rem; color: var(--text);">${explanation}</p>
+        </div>
+      `;
+      
       // Safe assignment without scripts
       eligibilityResult.innerHTML = planHtml;
+      
+      const explainBtn = document.getElementById('btn-explain-plan');
+      const explainText = document.getElementById('explain-text');
+      if (explainBtn && explainText) {
+        explainBtn.addEventListener('click', () => {
+          explainText.classList.remove('hidden');
+          explainBtn.classList.add('hidden');
+        });
+      }
     });
   }
 
