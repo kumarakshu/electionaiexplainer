@@ -7,7 +7,7 @@ export interface TimelinePhase {
   isActive: boolean;
 }
 
-const DEFAULT_TIMELINE: TimelinePhase[] = [
+export const EN_TIMELINE: TimelinePhase[] = [
   {
     id: 'phase-1',
     title: '1. Voter Registration',
@@ -29,7 +29,7 @@ const DEFAULT_TIMELINE: TimelinePhase[] = [
   {
     id: 'phase-4',
     title: '4. General Election Day',
-    description: 'Citizens cast their votes. This usually happens in early November for federal US elections.',
+    description: 'Citizens cast their votes.',
     isActive: false,
   },
   {
@@ -40,7 +40,34 @@ const DEFAULT_TIMELINE: TimelinePhase[] = [
   }
 ];
 
-export function renderTimeline(containerId: string, phases: TimelinePhase[] = DEFAULT_TIMELINE): void {
+export const HI_TIMELINE: TimelinePhase[] = [
+  {
+    id: 'phase-1',
+    title: '1. मतदाता पंजीकरण',
+    description: 'अंतिम तिथि से पहले मतदान के लिए अपना पंजीकरण सुनिश्चित करें।',
+    isActive: true,
+  },
+  {
+    id: 'phase-2',
+    title: '2. चुनाव प्रचार',
+    description: 'उम्मीदवार अपने एजेंडे पर चर्चा करने और वोट सुरक्षित करने के लिए प्रचार करते हैं।',
+    isActive: false,
+  },
+  {
+    id: 'phase-3',
+    title: '3. मतदान का दिन',
+    description: 'नागरिक अपना वोट डालते हैं। मतदान केंद्र पर अपनी पर्ची और आईडी ले जाएं।',
+    isActive: false,
+  },
+  {
+    id: 'phase-4',
+    title: '4. परिणाम और प्रमाणन',
+    description: 'वोटों की गिनती की जाती है और परिणामों की आधिकारिक घोषणा की जाती है।',
+    isActive: false,
+  }
+];
+
+export function renderTimeline(containerId: string, phases: TimelinePhase[] = EN_TIMELINE): void {
   const container = document.getElementById(containerId);
   if (!container) return;
 

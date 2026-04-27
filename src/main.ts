@@ -1,4 +1,4 @@
-import { renderTimeline } from './ui/timeline';
+import { renderTimeline, HI_TIMELINE, EN_TIMELINE } from './ui/timeline';
 import { initializeChat } from './ui/chat';
 import { initializeFirebase, loadUserPreference, saveUserPreference } from './services/firebase';
 
@@ -98,6 +98,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       navLabels[0].textContent = t.navHome;
       navLabels[1].textContent = t.navChat;
     }
+    
+    // Update Timeline content based on language
+    renderTimeline('timeline-container', lang === 'hi' ? HI_TIMELINE : EN_TIMELINE);
   }
 
   // Language Toggle
@@ -203,9 +206,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
   }
-
-  // Render the interactive timeline
-  renderTimeline('timeline-container');
 
   // Initialize the Chat interface
   initializeChat('chat-form', 'chat-input', 'chat-display', import.meta.env.VITE_GEMINI_API_KEY, () => currentLang);
