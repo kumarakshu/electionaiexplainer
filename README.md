@@ -2,6 +2,9 @@
 
 ![Rank 1 Potential Badge](https://img.shields.io/badge/Evaluation-100%25%20Verified-success?style=for-the-badge)
 ![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen?style=for-the-badge&logo=jest)
+![Cloud Run](https://img.shields.io/badge/Live%20on-Cloud%20Run-4285F4?style=for-the-badge&logo=googlecloud)
+
+🌐 **Live Demo:** [https://election-assistant-554914527906.asia-south1.run.app](https://election-assistant-554914527906.asia-south1.run.app)
 
 An intelligent, secure, and fully-accessible web application built to serve as an **Information & Process Guide Persona**. It helps first-time voters and citizens navigate the democratic election process seamlessly.
 
