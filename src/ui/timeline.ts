@@ -17,13 +17,14 @@ export const EN_TIMELINE: TimelinePhase[] = [
   {
     id: 'phase-2',
     title: '2. Primary Elections',
-    description: 'Voters choose their party\'s candidate for the general election.',
+    description: "Voters choose their party's candidate for the general election.",
     isActive: false,
   },
   {
     id: 'phase-3',
     title: '3. Campaigning & Debates',
-    description: 'Candidates campaign and participate in debates to discuss their platforms and secure votes.',
+    description:
+      'Candidates campaign and participate in debates to discuss their platforms and secure votes.',
     isActive: false,
   },
   {
@@ -37,7 +38,7 @@ export const EN_TIMELINE: TimelinePhase[] = [
     title: '5. Results & Certification',
     description: 'Votes are counted and results are officially certified.',
     isActive: false,
-  }
+  },
 ];
 
 export const HI_TIMELINE: TimelinePhase[] = [
@@ -64,7 +65,7 @@ export const HI_TIMELINE: TimelinePhase[] = [
     title: '4. परिणाम और प्रमाणन',
     description: 'वोटों की गिनती की जाती है और परिणामों की आधिकारिक घोषणा की जाती है।',
     isActive: false,
-  }
+  },
 ];
 
 export function renderTimeline(containerId: string, phases: TimelinePhase[] = EN_TIMELINE): void {
@@ -78,7 +79,7 @@ export function renderTimeline(containerId: string, phases: TimelinePhase[] = EN
     const nodeClass = phase.isActive ? 'timeline-node active' : 'timeline-node';
     const nodeEl = createElement('div', {
       classes: nodeClass.split(' '),
-      attributes: { 'aria-hidden': 'true' }
+      attributes: { 'aria-hidden': 'true' },
     });
 
     // Outer Wrapper
@@ -88,24 +89,24 @@ export function renderTimeline(containerId: string, phases: TimelinePhase[] = EN
 
     const contentEl = createElement('div', {
       classes: contentWrapperClass.split(' '),
-      children: [titleEl, descEl]
+      children: [titleEl, descEl],
     });
 
     // Item container
     const itemEl = createElement('div', {
       classes: ['timeline-item'],
-      attributes: { 
-        'role': 'listitem',
-        'aria-current': phase.isActive ? 'step' : 'false'
+      attributes: {
+        role: 'listitem',
+        'aria-current': phase.isActive ? 'step' : 'false',
       },
-      children: [nodeEl, contentEl]
+      children: [nodeEl, contentEl],
     });
-    
+
     // Add click handler to toggle activation visually (interactive experience)
     itemEl.addEventListener('click', () => {
       // Basic interactivity: mark this phase as active (just visually for demonstration)
       const allItems = container.querySelectorAll('.timeline-item');
-      allItems.forEach(el => {
+      allItems.forEach((el) => {
         el.querySelector('.timeline-node')?.classList.remove('active');
         el.querySelector('.timeline-content')?.classList.remove('glow');
         el.setAttribute('aria-current', 'false');

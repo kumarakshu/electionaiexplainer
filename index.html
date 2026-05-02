@@ -1,30 +1,45 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <meta name="theme-color" content="#8B5CF6" />
-    <meta name="description" content="An interactive and easy-to-follow guide to understanding the election process, timelines, and voting steps." />
+    <meta
+      name="description"
+      content="An interactive and easy-to-follow guide to understanding the election process, timelines, and voting steps."
+    />
     <title>Smart Election Assistant</title>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' ws: wss: http://localhost:* https://generativelanguage.googleapis.com https://firestore.googleapis.com https://firebase.googleapis.com; frame-src 'self' https://maps.google.com https://www.google.com; worker-src 'self' blob:; img-src 'self' data:;" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' ws: wss: http://localhost:* https://generativelanguage.googleapis.com https://firestore.googleapis.com https://firebase.googleapis.com; frame-src 'self' https://maps.google.com https://www.google.com; worker-src 'self' blob:; img-src 'self' data:;"
+    />
     <!-- Google Fonts for Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
-    
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
     <!-- Mobile App Layout Wrapper (Centered on Desktop) -->
     <div class="app-layout">
-      
       <!-- Fixed Glass Header -->
       <header role="banner" class="app-header glass">
         <div class="header-container">
           <div class="app-title-group">
             <h1 id="header-title">AI Chat</h1>
             <span id="context-chip" class="context-chip">User: Ready | Lang: English</span>
-            <p style="font-size: 0.6rem; color: var(--text-light); margin-top: 4px; font-weight: 500;">Built for first-time voters & rural accessibility</p>
+            <p
+              style="font-size: 0.6rem; color: var(--text-light); margin-top: 4px; font-weight: 500"
+            >
+              Built for first-time voters & rural accessibility
+            </p>
           </div>
           <nav role="navigation" aria-label="Main Navigation" class="header-nav">
             <div class="custom-select-wrapper">
@@ -32,11 +47,30 @@
                 <option value="en">English</option>
                 <option value="hi">Hindi</option>
               </select>
-              <svg class="select-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              <svg
+                class="select-icon"
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
             </div>
-            <button id="toggle-theme" class="icon-btn theme-toggle-btn" aria-label="Toggle Dark Mode" title="Toggle Dark Mode">
+            <button
+              id="toggle-theme"
+              class="icon-btn theme-toggle-btn"
+              aria-label="Toggle Dark Mode"
+              title="Toggle Dark Mode"
+            >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM12 20V4C16.4183 4 20 7.58172 20 12C20 16.4183 16.4183 20 12 20Z"></path>
+                <path
+                  d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM12 20V4C16.4183 4 20 7.58172 20 12C20 16.4183 16.4183 20 12 20Z"
+                ></path>
               </svg>
             </button>
           </nav>
@@ -45,10 +79,8 @@
 
       <!-- Scrollable Main Content -->
       <main role="main" class="main-scroll-area">
-        
         <!-- =================== HOME TAB =================== -->
         <div id="tab-home" class="tab-pane active-tab">
-          
           <div class="hero-section">
             <h2 class="hero-greeting">What would you like to know today?</h2>
             <div class="hero-buttons">
@@ -67,7 +99,6 @@
           <div class="tools-section">
             <h3 class="section-title">Popular Tools</h3>
             <div class="tools-grid">
-              
               <div class="tool-card" id="card-eligibility" tabindex="0" role="button">
                 <div class="tool-icon-wrapper bg-soft-red">
                   <span class="tool-icon">📝</span>
@@ -104,19 +135,23 @@
                 <h4>Reminders</h4>
                 <p>Sync calendar</p>
               </div>
-
             </div>
           </div>
-          
         </div>
 
         <!-- =================== CHAT TAB =================== -->
         <div id="tab-chat" class="tab-pane hidden-tab">
           <section id="assistant-chat" class="chat-section" aria-labelledby="chat-heading">
             <h2 id="chat-heading" class="visually-hidden">Ask the Election Assistant</h2>
-            
+
             <div class="chat-actions-mini">
-               <button id="btn-toggle-voice" class="chip-btn voice-active" aria-label="Toggle Voice Output">🔊 Voice: ON</button>
+              <button
+                id="btn-toggle-voice"
+                class="chip-btn voice-active"
+                aria-label="Toggle Voice Output"
+              >
+                🔊 Voice: ON
+              </button>
             </div>
 
             <div id="chat-display" class="chat-display" role="log" aria-live="polite">
@@ -127,7 +162,6 @@
             </div>
           </section>
         </div>
-
       </main>
 
       <!-- OVERLAYS (Hidden by default, shown when Home tool cards are clicked) -->
@@ -136,7 +170,14 @@
           <button class="close-overlay" id="btn-close-eligibility">×</button>
           <h2 id="eligibility-heading">Eligibility Check</h2>
           <div class="eligibility-controls">
-            <input type="number" id="eligibility-age" placeholder="Age" aria-label="Your Age" min="1" max="120" />
+            <input
+              type="number"
+              id="eligibility-age"
+              placeholder="Age"
+              aria-label="Your Age"
+              min="1"
+              max="120"
+            />
             <select id="eligibility-citizen" aria-label="Are you a citizen?">
               <option value="yes">Citizen</option>
               <option value="no">Not a Citizen</option>
@@ -170,41 +211,85 @@
 
       <!-- Fixed Bottom Navigation / Chat Bar -->
       <footer class="bottom-action-bar glass">
-        
         <!-- Chat Input Form (Visible ONLY when in Chat Tab, positioned ABOVE the nav tabs) -->
-        <form id="chat-form" class="chat-controls hidden-form" aria-label="Chat input configuration">
+        <form
+          id="chat-form"
+          class="chat-controls hidden-form"
+          aria-label="Chat input configuration"
+        >
           <label for="chat-input" class="visually-hidden">Ask a question</label>
           <div class="modern-input-wrapper">
             <button type="button" class="attachment-btn" title="Attach (Demo)">+</button>
-            <input 
-               type="text" 
-               id="chat-input" 
-               placeholder="Type your message..." 
-               aria-required="true"
-               required
-               autocomplete="off"
+            <input
+              type="text"
+              id="chat-input"
+              placeholder="Type your message..."
+              aria-required="true"
+              required
+              autocomplete="off"
             />
-            <button type="button" id="voice-btn" class="mic-btn" aria-label="Use Voice Input" title="Speak">🎤</button>
+            <button
+              type="button"
+              id="voice-btn"
+              class="mic-btn"
+              aria-label="Use Voice Input"
+              title="Speak"
+            >
+              🎤
+            </button>
           </div>
           <button type="submit" id="send-btn" aria-label="Send Message" class="send-btn pulse-send">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
           </button>
         </form>
 
         <!-- Bottom Nav Tabs -->
         <nav id="bottom-tabs" class="bottom-tabs">
           <button class="nav-tab active" data-tab="tab-home">
-             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-             <span class="nav-label">Home</span>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            <span class="nav-label">Home</span>
           </button>
           <button class="nav-tab" data-tab="tab-chat">
-             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-             <span class="nav-label">Chat</span>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span class="nav-label">Chat</span>
           </button>
         </nav>
-
       </footer>
-
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

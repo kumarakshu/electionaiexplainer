@@ -40,7 +40,7 @@ export function createElement(tag: string, options: ElementOptions = {}): HTMLEl
   }
 
   if (options.children) {
-    options.children.forEach(child => el.appendChild(child));
+    options.children.forEach((child) => el.appendChild(child));
   }
 
   return el;

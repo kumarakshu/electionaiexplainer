@@ -17,17 +17,17 @@ describe('Gemini Service', () => {
   it('should generate a response successfully without history', async () => {
     const mockGenerateContent = jest.fn().mockResolvedValue({
       response: {
-        text: () => 'Election info response'
-      }
+        text: () => 'Election info response',
+      },
     });
 
     const mockGetGenerativeModel = jest.fn().mockReturnValue({
-      generateContent: mockGenerateContent
+      generateContent: mockGenerateContent,
     });
 
     MockGoogleGenerativeAI.mockImplementation(() => {
       return {
-        getGenerativeModel: mockGetGenerativeModel
+        getGenerativeModel: mockGetGenerativeModel,
       } as unknown as GoogleGenerativeAI;
     });
 
@@ -41,14 +41,18 @@ describe('Gemini Service', () => {
 
   it('should format history correctly in prompt when provided', async () => {
     const mockGenerateContent = jest.fn().mockResolvedValue({
-      response: { text: () => 'Response with history' }
+      response: { text: () => 'Response with history' },
     });
-    const mockGetGenerativeModel = jest.fn().mockReturnValue({ generateContent: mockGenerateContent });
-    MockGoogleGenerativeAI.mockImplementation(() => ({ getGenerativeModel: mockGetGenerativeModel } as unknown as GoogleGenerativeAI));
+    const mockGetGenerativeModel = jest
+      .fn()
+      .mockReturnValue({ generateContent: mockGenerateContent });
+    MockGoogleGenerativeAI.mockImplementation(
+      () => ({ getGenerativeModel: mockGetGenerativeModel }) as unknown as GoogleGenerativeAI,
+    );
 
     const history: ChatMessage[] = [
       { role: 'user', text: 'Hi' },
-      { role: 'assistant', text: 'Hello' }
+      { role: 'assistant', text: 'Hello' },
     ];
 
     await generateElectionResponse('Next question', 'key', history);
@@ -61,33 +65,61 @@ describe('Gemini Service', () => {
 
   it('should handle API errors gracefully safely wrapping random objects', async () => {
     const mockGenerateContent = jest.fn().mockRejectedValue('String Error');
-    const mockGetGenerativeModel = jest.fn().mockReturnValue({ generateContent: mockGenerateContent });
-    MockGoogleGenerativeAI.mockImplementation(() => ({ getGenerativeModel: mockGetGenerativeModel } as unknown as GoogleGenerativeAI));
+    const mockGetGenerativeModel = jest
+      .fn()
+      .mockReturnValue({ generateContent: mockGenerateContent });
+    MockGoogleGenerativeAI.mockImplementation(
+      () => ({ getGenerativeModel: mockGetGenerativeModel }) as unknown as GoogleGenerativeAI,
+    );
 
-    await expect(generateElectionResponse('test', 'key')).rejects.toThrow('Could not connect to the AI service: String Error');
+    await expect(generateElectionResponse('test', 'key')).rejects.toThrow(
+      'Could not connect to the AI service: String Error',
+    );
   });
 
   it('should handle API Error instances safely', async () => {
     const mockGenerateContent = jest.fn().mockRejectedValue(new Error('Network Fail'));
-    const mockGetGenerativeModel = jest.fn().mockReturnValue({ generateContent: mockGenerateContent });
-    MockGoogleGenerativeAI.mockImplementation(() => ({ getGenerativeModel: mockGetGenerativeModel } as unknown as GoogleGenerativeAI));
+    const mockGetGenerativeModel = jest
+      .fn()
+      .mockReturnValue({ generateContent: mockGenerateContent });
+    MockGoogleGenerativeAI.mockImplementation(
+      () => ({ getGenerativeModel: mockGetGenerativeModel }) as unknown as GoogleGenerativeAI,
+    );
 
-    await expect(generateElectionResponse('test', 'key')).rejects.toThrow('Could not connect to the AI service: Network Fail');
+    await expect(generateElectionResponse('test', 'key')).rejects.toThrow(
+      'Could not connect to the AI service: Network Fail',
+    );
   });
 
   it('should parse 429 quota errors gracefully', async () => {
-    const mockGenerateContent = jest.fn().mockRejectedValue(new Error('Error 429 Quota Exceeded JSON info blob'));
-    const mockGetGenerativeModel = jest.fn().mockReturnValue({ generateContent: mockGenerateContent });
-    MockGoogleGenerativeAI.mockImplementation(() => ({ getGenerativeModel: mockGetGenerativeModel } as unknown as GoogleGenerativeAI));
+    const mockGenerateContent = jest
+      .fn()
+      .mockRejectedValue(new Error('Error 429 Quota Exceeded JSON info blob'));
+    const mockGetGenerativeModel = jest
+      .fn()
+      .mockReturnValue({ generateContent: mockGenerateContent });
+    MockGoogleGenerativeAI.mockImplementation(
+      () => ({ getGenerativeModel: mockGetGenerativeModel }) as unknown as GoogleGenerativeAI,
+    );
 
-    await expect(generateElectionResponse('test', 'key')).rejects.toThrow('Could not connect to the AI service: The API usage limit has been reached. Please wait a moment or check your Google AI Studio quota.');
+    await expect(generateElectionResponse('test', 'key')).rejects.toThrow(
+      'Could not connect to the AI service: The API usage limit has been reached. Please wait a moment or check your Google AI Studio quota.',
+    );
   });
 
   it('should parse 503 errors gracefully', async () => {
-    const mockGenerateContent = jest.fn().mockRejectedValue(new Error('Error [503] The model is currently overloaded.'));
-    const mockGetGenerativeModel = jest.fn().mockReturnValue({ generateContent: mockGenerateContent });
-    MockGoogleGenerativeAI.mockImplementation(() => ({ getGenerativeModel: mockGetGenerativeModel } as unknown as GoogleGenerativeAI));
+    const mockGenerateContent = jest
+      .fn()
+      .mockRejectedValue(new Error('Error [503] The model is currently overloaded.'));
+    const mockGetGenerativeModel = jest
+      .fn()
+      .mockReturnValue({ generateContent: mockGenerateContent });
+    MockGoogleGenerativeAI.mockImplementation(
+      () => ({ getGenerativeModel: mockGetGenerativeModel }) as unknown as GoogleGenerativeAI,
+    );
 
-    await expect(generateElectionResponse('test', 'key')).rejects.toThrow('Could not connect to the AI service: The AI model is experiencing high demand. Please try again later.');
+    await expect(generateElectionResponse('test', 'key')).rejects.toThrow(
+      'Could not connect to the AI service: The AI model is experiencing high demand. Please try again later.',
+    );
   });
 });

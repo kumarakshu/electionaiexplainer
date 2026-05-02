@@ -41,7 +41,7 @@ describe('Chat UI', () => {
 
     window.alert = jest.fn();
     jest.clearAllMocks();
-    
+
     // Mock scrollIntoView
     Element.prototype.scrollIntoView = jest.fn();
   });
@@ -59,7 +59,7 @@ describe('Chat UI', () => {
     initializeChat('chat-form', 'chat-input', 'chat-display');
     input.value = 'Hello';
     delete process.env.VITE_GEMINI_API_KEY;
-    
+
     form.dispatchEvent(new Event('submit'));
     expect(display.children[0].textContent).toContain('Please configure VITE_GEMINI_API_KEY');
   });
@@ -69,12 +69,17 @@ describe('Chat UI', () => {
     (geminiService.generateElectionResponse as jest.Mock).mockResolvedValue('Hello');
     process.env.VITE_GEMINI_API_KEY = 'fake-api-key';
     input.value = 'Hi';
-    
+
     form.dispatchEvent(new Event('submit'));
-    await new Promise(r => setTimeout(r, 0));
-    
-    expect(actionsService.speakText).toHaveBeenCalledWith('Hello', 'en', expect.any(Function), expect.any(Function));
-    
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(actionsService.speakText).toHaveBeenCalledWith(
+      'Hello',
+      'en',
+      expect.any(Function),
+      expect.any(Function),
+    );
+
     // Test callbacks
     const speakCall = (actionsService.speakText as jest.Mock).mock.calls[0];
     const onStart = speakCall[2];
@@ -86,21 +91,21 @@ describe('Chat UI', () => {
   it('should toggle voice output', async () => {
     initializeChat('chat-form', 'chat-input', 'chat-display');
     const toggleBtn = document.getElementById('btn-toggle-voice') as HTMLButtonElement;
-    
+
     // Toggle off
     toggleBtn?.dispatchEvent(new Event('click'));
     expect(actionsService.stopSpeaking).toHaveBeenCalled();
     expect(toggleBtn?.textContent).toContain('OFF');
-    
+
     (geminiService.generateElectionResponse as jest.Mock).mockResolvedValue('Hello');
     process.env.VITE_GEMINI_API_KEY = 'fake-api-key';
     input.value = 'Hi';
     form.dispatchEvent(new Event('submit'));
-    await new Promise(r => setTimeout(r, 0));
-    
+    await new Promise((r) => setTimeout(r, 0));
+
     // Should NOT speak since toggled off
     expect(actionsService.speakText).not.toHaveBeenCalled();
-    
+
     // Toggle back on
     toggleBtn?.dispatchEvent(new Event('click'));
     expect(toggleBtn?.textContent).toContain('ON');
@@ -111,17 +116,17 @@ describe('Chat UI', () => {
     const btnMaps = document.getElementById('btn-maps-booth');
     const mapsSection = document.getElementById('maps-section');
     const btnCloseMaps = document.getElementById('btn-close-maps');
-    
+
     // Open maps
     btnMaps?.dispatchEvent(new Event('click'));
     expect(mapsSection?.classList.contains('hidden')).toBe(false);
     expect(actionsService.openGoogleMapsBooth).toHaveBeenCalled();
-    
+
     // The callback inside openGoogleMapsBooth handles scroll, simulate it manually to cover
     const mockAction = actionsService.openGoogleMapsBooth as jest.Mock;
     const onShowCb = mockAction.mock.calls[0][1];
     onShowCb();
-    
+
     // Close maps
     btnCloseMaps?.dispatchEvent(new Event('click'));
     expect(mapsSection?.classList.contains('hidden')).toBe(true);
@@ -140,7 +145,7 @@ describe('Chat UI', () => {
     const voiceBtn = document.getElementById('voice-btn');
     voiceBtn?.dispatchEvent(new Event('click'));
     expect(actionsService.stopSpeaking).toHaveBeenCalled();
-    
+
     // Capture and execute callbacks for coverage
     const initCall = (actionsService.initVoiceInput as jest.Mock).mock.calls[0];
     const onResult = initCall[1];
@@ -157,17 +162,17 @@ describe('Chat UI', () => {
     const mockLang = 'hi';
     initializeChat('chat-form', 'chat-input', 'chat-display', 'fake-key', () => mockLang);
     const btnGuide = document.getElementById('btn-guide-me');
-    
+
     btnGuide?.dispatchEvent(new Event('click'));
-    await new Promise(r => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
     expect(actionsService.stopSpeaking).toHaveBeenCalled();
   });
-  
+
   it('should handle guide me with missing API key', async () => {
     initializeChat('chat-form', 'chat-input', 'chat-display', '');
     const btnGuide = document.getElementById('btn-guide-me');
     delete process.env.VITE_GEMINI_API_KEY;
-    
+
     btnGuide?.dispatchEvent(new Event('click'));
     expect(display.lastChild?.textContent).toContain('Please configure VITE_GEMINI_API_KEY');
   });
@@ -178,7 +183,7 @@ describe('Chat UI', () => {
     process.env.VITE_GEMINI_API_KEY = 'fake-api-key';
     input.value = 'Hi';
     form.dispatchEvent(new Event('submit'));
-    await new Promise(r => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
     expect(display.lastChild?.textContent).toContain('Error: Fail');
   });
 
@@ -188,7 +193,7 @@ describe('Chat UI', () => {
     process.env.VITE_GEMINI_API_KEY = 'fake-api-key';
     input.value = 'Hi';
     form.dispatchEvent(new Event('submit'));
-    await new Promise(r => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
     expect(display.lastChild?.textContent).toContain('Error: Failed to communicate with AI.');
   });
 

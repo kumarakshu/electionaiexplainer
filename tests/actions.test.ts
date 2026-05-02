@@ -1,4 +1,10 @@
-import { openGoogleMapsBooth, downloadCalendarReminder, initVoiceInput, speakText, stopSpeaking } from '../src/ui/actions';
+import {
+  openGoogleMapsBooth,
+  downloadCalendarReminder,
+  initVoiceInput,
+  speakText,
+  stopSpeaking,
+} from '../src/ui/actions';
 
 // Mock window globals not supported by JSDOM
 (window as unknown as { alert: jest.Mock }).alert = jest.fn();
@@ -12,9 +18,9 @@ describe('UI Actions', () => {
     it('should embed iframe in container and call onShow', () => {
       document.body.innerHTML = '<div id="maps-container"></div>';
       const onShow = jest.fn();
-      
+
       openGoogleMapsBooth('maps-container', onShow);
-      
+
       const container = document.getElementById('maps-container');
       expect(container?.innerHTML).toContain('<iframe');
       expect(onShow).toHaveBeenCalled();
@@ -23,7 +29,7 @@ describe('UI Actions', () => {
     it('should handle missing container', () => {
       document.body.innerHTML = '';
       const onShow = jest.fn();
-      
+
       openGoogleMapsBooth('maps-container', onShow);
       expect(onShow).not.toHaveBeenCalled();
     });
@@ -33,11 +39,17 @@ describe('UI Actions', () => {
     it('should trigger download', () => {
       const windowOpenMock = jest.spyOn(window, 'open').mockImplementation();
       downloadCalendarReminder(jest.fn());
-      expect(windowOpenMock).toHaveBeenCalledWith(expect.stringContaining('calendar.google.com'), '_blank', 'noopener,noreferrer');
+      expect(windowOpenMock).toHaveBeenCalledWith(
+        expect.stringContaining('calendar.google.com'),
+        '_blank',
+        'noopener,noreferrer',
+      );
     });
 
     it('should call onError if error occurs', () => {
-      jest.spyOn(window, 'open').mockImplementation(() => { throw new Error('Crashed'); });
+      jest.spyOn(window, 'open').mockImplementation(() => {
+        throw new Error('Crashed');
+      });
       const err = jest.fn();
       downloadCalendarReminder(err);
       expect(err).toHaveBeenCalledWith('Failed to open Google Calendar reminder.');
@@ -47,7 +59,10 @@ describe('UI Actions', () => {
   describe('initVoiceInput', () => {
     it('should call onError if not supported', () => {
       Object.defineProperty(window, 'SpeechRecognition', { value: undefined, configurable: true });
-      Object.defineProperty(window, 'webkitSpeechRecognition', { value: undefined, configurable: true });
+      Object.defineProperty(window, 'webkitSpeechRecognition', {
+        value: undefined,
+        configurable: true,
+      });
       const err = jest.fn();
       initVoiceInput(document.createElement('input'), jest.fn(), err);
       expect(err).toHaveBeenCalledWith('Sorry, your browser does not support Voice Input.');
@@ -63,7 +78,9 @@ describe('UI Actions', () => {
         start() {}
         onresult!: (event: { results: { transcript: string }[][] }) => void;
         onerror!: (event: { error: string }) => void;
-        constructor() { MockSR.lastInstance = this; }
+        constructor() {
+          MockSR.lastInstance = this;
+        }
       }
       Object.defineProperty(window, 'SpeechRecognition', { value: MockSR, configurable: true });
 
@@ -76,7 +93,9 @@ describe('UI Actions', () => {
 
       // trigger error
       MockSR.lastInstance.onerror({ error: 'not-allowed' });
-      expect(onErr).toHaveBeenCalledWith('Voice input failed. Please check microphone permissions.');
+      expect(onErr).toHaveBeenCalledWith(
+        'Voice input failed. Please check microphone permissions.',
+      );
     });
 
     it('should ignore non-critical speech errors', () => {
@@ -87,7 +106,9 @@ describe('UI Actions', () => {
         static lastInstance: MockSR;
         start() {}
         onerror!: (event: { error: string }) => void;
-        constructor() { MockSR.lastInstance = this; }
+        constructor() {
+          MockSR.lastInstance = this;
+        }
       }
       Object.defineProperty(window, 'SpeechRecognition', { value: MockSR, configurable: true });
 
@@ -98,8 +119,11 @@ describe('UI Actions', () => {
     });
 
     it('should catch init exceptions', () => {
-      Object.defineProperty(window, 'SpeechRecognition', { 
-        get: () => { throw new Error('API block') }, configurable: true 
+      Object.defineProperty(window, 'SpeechRecognition', {
+        get: () => {
+          throw new Error('API block');
+        },
+        configurable: true,
       });
       const err = jest.fn();
       initVoiceInput(document.createElement('input'), jest.fn(), err);
@@ -116,7 +140,9 @@ describe('UI Actions', () => {
         start() {}
         onstart!: () => void;
         onend!: () => void;
-        constructor() { MockSR.lastInstance = this; }
+        constructor() {
+          MockSR.lastInstance = this;
+        }
       }
       Object.defineProperty(window, 'SpeechRecognition', { value: MockSR, configurable: true });
 
@@ -133,7 +159,9 @@ describe('UI Actions', () => {
         start() {}
         onstart!: () => void;
         onend!: () => void;
-        constructor() { MockSR.lastInstance = this; }
+        constructor() {
+          MockSR.lastInstance = this;
+        }
       }
       Object.defineProperty(window, 'SpeechRecognition', { value: MockSR, configurable: true });
 
@@ -155,16 +183,18 @@ describe('UI Actions', () => {
       Object.defineProperty(window, 'speechSynthesis', {
         value: {
           speak: mockSpeak,
-          cancel: mockCancel
+          cancel: mockCancel,
         },
-        configurable: true
+        configurable: true,
       });
       // Mock SpeechSynthesisUtterance
-      (window as unknown as { SpeechSynthesisUtterance: jest.Mock }).SpeechSynthesisUtterance = jest.fn().mockImplementation((text) => ({
-        text,
-        lang: 'en-US',
-        rate: 1
-      }));
+      (window as unknown as { SpeechSynthesisUtterance: jest.Mock }).SpeechSynthesisUtterance = jest
+        .fn()
+        .mockImplementation((text) => ({
+          text,
+          lang: 'en-US',
+          rate: 1,
+        }));
     });
 
     it('should speak text with English default', () => {
@@ -172,7 +202,9 @@ describe('UI Actions', () => {
       expect(mockCancel).toHaveBeenCalled();
       expect(mockSpeak).toHaveBeenCalled();
       // Verifying markdown removal
-      expect((window as unknown as { SpeechSynthesisUtterance: jest.Mock }).SpeechSynthesisUtterance).toHaveBeenCalledWith('hello world');
+      expect(
+        (window as unknown as { SpeechSynthesisUtterance: jest.Mock }).SpeechSynthesisUtterance,
+      ).toHaveBeenCalledWith('hello world');
     });
 
     it('should speak text with Hindi', () => {
@@ -184,12 +216,12 @@ describe('UI Actions', () => {
       const onStart = jest.fn();
       const onEnd = jest.fn();
       speakText('test', 'en', onStart, onEnd);
-      
+
       const utterance = mockSpeak.mock.calls[0][0];
       utterance.onstart();
       utterance.onend();
       utterance.onerror();
-      
+
       expect(onStart).toHaveBeenCalledTimes(1);
       expect(onEnd).toHaveBeenCalledTimes(2);
     });
@@ -213,7 +245,7 @@ describe('UI Actions', () => {
       stopSpeaking();
       expect(mockCancel).toHaveBeenCalled();
     });
-    
+
     it('should do nothing on stop if not available', () => {
       Object.defineProperty(window, 'speechSynthesis', { value: undefined, configurable: true });
       stopSpeaking();

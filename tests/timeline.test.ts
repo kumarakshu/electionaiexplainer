@@ -11,7 +11,7 @@ describe('Timeline UI', () => {
     expect(container).not.toBeNull();
     const items = container?.querySelectorAll('.timeline-item');
     expect(items?.length).toBe(5); // Default phases
-    
+
     // First phase should be active
     const firstNode = items?.[0].querySelector('.timeline-node');
     expect(firstNode?.classList.contains('active')).toBe(true);
@@ -20,14 +20,14 @@ describe('Timeline UI', () => {
   it('should handle custom phases', () => {
     const customPhases = [
       { id: '1', title: 'Test 1', description: 'Desc 1', isActive: false },
-      { id: '2', title: 'Test 2', description: 'Desc 2', isActive: true }
+      { id: '2', title: 'Test 2', description: 'Desc 2', isActive: true },
     ];
     renderTimeline('timeline-container', customPhases);
-    
+
     const container = document.getElementById('timeline-container');
     const items = container?.querySelectorAll('.timeline-item');
     expect(items?.length).toBe(2);
-    
+
     const secondNode = items?.[1].querySelector('.timeline-node');
     expect(secondNode?.classList.contains('active')).toBe(true);
   });
@@ -36,7 +36,7 @@ describe('Timeline UI', () => {
     renderTimeline('timeline-container');
     const container = document.getElementById('timeline-container');
     const items = container?.querySelectorAll('.timeline-item');
-    
+
     // Click second item
     const secondItem = items?.[1] as HTMLElement;
     secondItem.click();

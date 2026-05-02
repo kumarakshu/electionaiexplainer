@@ -23,7 +23,9 @@ describe('DOM Utils', () => {
   });
 
   it('should add attributes', () => {
-    const el = createElement('a', { attributes: { href: 'https://example.com', target: '_blank' } });
+    const el = createElement('a', {
+      attributes: { href: 'https://example.com', target: '_blank' },
+    });
     expect(el.getAttribute('href')).toBe('https://example.com');
     expect(el.getAttribute('target')).toBe('_blank');
   });
@@ -42,7 +44,7 @@ describe('DOM Utils', () => {
     parent.appendChild(document.createElement('span'));
     parent.appendChild(document.createElement('strong'));
     expect(parent.children.length).toBe(2);
-    
+
     clearChildren(parent);
     expect(parent.children.length).toBe(0);
   });

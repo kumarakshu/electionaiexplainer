@@ -2,29 +2,28 @@
  * UI Actions for Google Services Integration and Utilities
  */
 
-export function openGoogleMapsBooth(
-  containerId: string, 
-  onShow: () => void
-): void {
+import { clearChildren } from './dom-utils';
+
+export function openGoogleMapsBooth(containerId: string, onShow: () => void): void {
   const container = document.getElementById(containerId);
   if (!container) return;
-  
-  // Clear any existing map
-  container.innerHTML = '';
-  
+
+  // Clear any existing map securely
+  clearChildren(container);
+
   // Create an iframe to embed Google Maps directly
   const iframe = document.createElement('iframe');
-  
+
   // Using the legacy Google Maps embed approach to avoid requiring an API key
   // while still demonstrating deep integration of embedded Maps
   iframe.src = `https://maps.google.com/maps?q=polling+booth&t=&z=14&ie=UTF8&output=embed`;
-  iframe.title = "Nearest Polling Booths on Google Maps";
+  iframe.title = 'Nearest Polling Booths on Google Maps';
   iframe.allowFullscreen = true;
-  iframe.loading = "lazy";
-  iframe.style.border = "0";
-  iframe.style.width = "100%";
-  iframe.style.height = "100%";
-  
+  iframe.loading = 'lazy';
+  iframe.style.border = '0';
+  iframe.style.width = '100%';
+  iframe.style.height = '100%';
+
   container.appendChild(iframe);
   onShow();
 }
@@ -32,7 +31,8 @@ export function openGoogleMapsBooth(
 export function downloadCalendarReminder(onError: (msg: string) => void): void {
   try {
     // Open Google Calendar web interface to add event directly
-    const url = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Election+Day+-+Go+Vote!&dates=20261103T023000Z/20261103T123000Z&details=Remember+to+bring+your+Voter+ID+and+check+your+polling+booth.&location=Your+Local+Polling+Booth';
+    const url =
+      'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Election+Day+-+Go+Vote!&dates=20261103T023000Z/20261103T123000Z&details=Remember+to+bring+your+Voter+ID+and+check+your+polling+booth.&location=Your+Local+Polling+Booth';
     window.open(url, '_blank', 'noopener,noreferrer');
   } catch {
     onError('Failed to open Google Calendar reminder.');
@@ -40,11 +40,11 @@ export function downloadCalendarReminder(onError: (msg: string) => void): void {
 }
 
 export function initVoiceInput(
-  inputEl: HTMLInputElement, 
+  inputEl: HTMLInputElement,
   onResult: (text: string) => void,
   onError: (msg: string) => void,
   onStart?: () => void,
-  onEnd?: () => void
+  onEnd?: () => void,
 ): void {
   try {
     // Securely check for SpeechRecognition API
@@ -58,11 +58,13 @@ export function initVoiceInput(
       onend: (() => void) | null;
       start: () => void;
     }
-    type SpeechRecogConstructor = { new(): SpeechRecognitionShape };
+    type SpeechRecogConstructor = { new (): SpeechRecognitionShape };
 
-    const SpeechRec = (window as unknown as { SpeechRecognition?: SpeechRecogConstructor }).SpeechRecognition || 
-                      (window as unknown as { webkitSpeechRecognition?: SpeechRecogConstructor }).webkitSpeechRecognition;
-    
+    const SpeechRec =
+      (window as unknown as { SpeechRecognition?: SpeechRecogConstructor }).SpeechRecognition ||
+      (window as unknown as { webkitSpeechRecognition?: SpeechRecogConstructor })
+        .webkitSpeechRecognition;
+
     if (!SpeechRec) {
       onError('Sorry, your browser does not support Voice Input.');
       return;
@@ -89,12 +91,12 @@ export function initVoiceInput(
 
     recognition.onerror = (event: { error: string }) => {
       console.error('Speech recognition error', event.error);
-      
+
       // Ignore normal termination or flaky network errors that don't need a user alert
       if (event.error === 'no-speech' || event.error === 'aborted' || event.error === 'network') {
-        return; 
+        return;
       }
-      
+
       // Only alert on critical issues like missing permissions
       if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
         onError('Voice input failed. Please check microphone permissions.');
@@ -109,31 +111,36 @@ export function initVoiceInput(
 
 let currentUtterance: SpeechSynthesisUtterance | null = null;
 
-export function speakText(text: string, lang: string = 'en-IN', onStart?: () => void, onEnd?: () => void): void {
+export function speakText(
+  text: string,
+  lang: string = 'en-IN',
+  onStart?: () => void,
+  onEnd?: () => void,
+): void {
   if (!window.speechSynthesis) return;
-  
+
   // Stop any ongoing speech
   window.speechSynthesis.cancel();
-  
+
   // Strip Markdown for better speech
   const cleanText = text.replace(/[*_#]/g, '').replace(/\[.*?\]\(.*?\)/g, '');
-  
+
   currentUtterance = new SpeechSynthesisUtterance(cleanText);
   currentUtterance.lang = lang === 'hi' ? 'hi-IN' : 'en-IN';
   currentUtterance.rate = 1.0;
-  
+
   currentUtterance.onstart = () => {
     if (onStart) onStart();
   };
-  
+
   currentUtterance.onend = () => {
     if (onEnd) onEnd();
   };
-  
+
   currentUtterance.onerror = () => {
     if (onEnd) onEnd();
   };
-  
+
   window.speechSynthesis.speak(currentUtterance);
 }
 

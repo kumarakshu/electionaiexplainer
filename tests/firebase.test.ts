@@ -1,4 +1,8 @@
-import { initializeFirebase, saveUserPreference, loadUserPreference } from '../src/services/firebase';
+import {
+  initializeFirebase,
+  saveUserPreference,
+  loadUserPreference,
+} from '../src/services/firebase';
 
 describe('Firebase Service', () => {
   beforeEach(() => {
@@ -54,11 +58,11 @@ describe('Firebase Service', () => {
     jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new Error('Quota exceeded');
     });
-    
+
     await saveUserPreference('theme', 'dark');
     expect(console.error).toHaveBeenCalledWith(
       'Failed to save preference to Firebase:',
-      expect.any(Error)
+      expect.any(Error),
     );
   });
 });

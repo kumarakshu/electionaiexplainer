@@ -1,25 +1,35 @@
 import { createElement } from './dom-utils';
 import { generateElectionResponse, ChatMessage } from '../services/gemini';
-import { initVoiceInput, openGoogleMapsBooth, downloadCalendarReminder, speakText, stopSpeaking } from './actions';
+import {
+  initVoiceInput,
+  openGoogleMapsBooth,
+  downloadCalendarReminder,
+  speakText,
+  stopSpeaking,
+} from './actions';
 
 export function initializeChat(
-  formId: string, 
-  inputId: string, 
+  formId: string,
+  inputId: string,
   displayId: string,
   apiKeyParam?: string,
-  getLanguage: () => string = () => 'en'
+  getLanguage: () => string = () => 'en',
 ): void {
   const form = document.getElementById(formId) as HTMLFormElement;
   const input = document.getElementById(inputId) as HTMLInputElement;
   const display = document.getElementById(displayId);
 
   if (!form || !input || !display) return;
-  
-  // @ts-expect-error - process is not available in browser but might be present in test environment
-  const getApiKey = () => apiKeyParam || (typeof process !== 'undefined' ? process.env.VITE_GEMINI_API_KEY : '');
+
+  const getApiKey = () => {
+    const globalObj = typeof globalThis !== 'undefined' ? globalThis : window;
+    // @ts-expect-error - process is not standard
+    const env = globalObj.process?.env;
+    return apiKeyParam || (env ? env.VITE_GEMINI_API_KEY : '');
+  };
 
   const chatHistory: ChatMessage[] = [];
-  
+
   // Voice Output State
   let voiceOutputEnabled = true;
 
@@ -32,17 +42,19 @@ export function initializeChat(
     try {
       const lang = getLanguage();
       const responseText = await generateElectionResponse(userMessage, apiKey, chatHistory, lang);
-      
+
       chatHistory.push({ role: 'user', text: userMessage });
       chatHistory.push({ role: 'assistant', text: responseText });
 
       removeElement(loadingId);
       appendMessage(display, responseText, 'assistant');
-      
+
       if (voiceOutputEnabled) {
-        speakText(responseText, lang, 
+        speakText(
+          responseText,
+          lang,
           () => btnToggleVoice?.classList.add('speaking'),
-          () => btnToggleVoice?.classList.remove('speaking')
+          () => btnToggleVoice?.classList.remove('speaking'),
         );
       }
     } catch (err: unknown) {
@@ -87,11 +99,14 @@ export function initializeChat(
   if (btnVoiceInput) {
     btnVoiceInput.addEventListener('click', () => {
       stopSpeaking(); // Stop AI voice if user starts talking
-      initVoiceInput(input, () => {
-        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-      }, (msg) => alert(msg),
-      () => btnVoiceInput.classList.add('listening'),
-      () => btnVoiceInput.classList.remove('listening')
+      initVoiceInput(
+        input,
+        () => {
+          form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        },
+        (msg) => alert(msg),
+        () => btnVoiceInput.classList.add('listening'),
+        () => btnVoiceInput.classList.remove('listening'),
       );
     });
   }
@@ -114,13 +129,18 @@ export function initializeChat(
     btnGuideMe.addEventListener('click', async () => {
       const apiKey = getApiKey();
       if (!apiKey) {
-        appendMessage(display, 'Please configure VITE_GEMINI_API_KEY in your .env file to start Guided Mode.', 'assistant');
+        appendMessage(
+          display,
+          'Please configure VITE_GEMINI_API_KEY in your .env file to start Guided Mode.',
+          'assistant',
+        );
         return;
       }
       stopSpeaking();
-      const triggerMessage = getLanguage() === 'hi' 
-        ? "मैं वोट देना चाहता हूँ। एक इंटरैक्टिव डिसीजन असिस्टेंट के रूप में स्टेप-बाय-स्टेप गाइड करें। सबसे पहले पूछें कि क्या मेरी उम्र 18+ है।" 
-        : "I want to vote. Guide me step-by-step as an interactive decision assistant. First ask if I am 18+.";
+      const triggerMessage =
+        getLanguage() === 'hi'
+          ? 'मैं वोट देना चाहता हूँ। एक इंटरैक्टिव डिसीजन असिस्टेंट के रूप में स्टेप-बाय-स्टेप गाइड करें। सबसे पहले पूछें कि क्या मेरी उम्र 18+ है।'
+          : 'I want to vote. Guide me step-by-step as an interactive decision assistant. First ask if I am 18+.';
       await handleMessageSubmit(triggerMessage, apiKey);
     });
   }
@@ -135,7 +155,11 @@ export function initializeChat(
     if (!userMessage) return;
 
     if (!apiKey) {
-      appendMessage(display, 'Please configure VITE_GEMINI_API_KEY in your .env file to chat with the assistant.', 'assistant');
+      appendMessage(
+        display,
+        'Please configure VITE_GEMINI_API_KEY in your .env file to chat with the assistant.',
+        'assistant',
+      );
       return;
     }
 
@@ -146,7 +170,7 @@ export function initializeChat(
 function appendMessage(display: HTMLElement, text: string, role: 'user' | 'assistant'): void {
   const msgEl = createElement('div', {
     classes: ['message', `${role}-message`],
-    textContent: text
+    textContent: text,
   });
   display.appendChild(msgEl);
   display.scrollTop = display.scrollHeight;
@@ -157,11 +181,11 @@ function appendLoadingItem(display: HTMLElement): string {
   const dot1 = createElement('span', { classes: ['dot'], textContent: '.' });
   const dot2 = createElement('span', { classes: ['dot'], textContent: '.' });
   const dot3 = createElement('span', { classes: ['dot'], textContent: '.' });
-  
+
   const loaderEl = createElement('div', {
     id,
     classes: ['message', 'assistant-message', 'loading-indicator'],
-    children: [dot1, dot2, dot3]
+    children: [dot1, dot2, dot3],
   });
 
   display.appendChild(loaderEl);

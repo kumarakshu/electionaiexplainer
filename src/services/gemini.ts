@@ -22,10 +22,10 @@ export interface ChatMessage {
 }
 
 export async function generateElectionResponse(
-  userMessage: string, 
+  userMessage: string,
   apiKey: string,
   history: ChatMessage[] = [],
-  language: string = 'en'
+  language: string = 'en',
 ): Promise<string> {
   if (!apiKey) {
     throw new Error('API Key is required');
@@ -35,9 +35,9 @@ export async function generateElectionResponse(
     const genAI = new GoogleGenerativeAI(apiKey);
     // Use the reliable standard model
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-    
+
     const SYSTEM_PROMPT = getSystemPrompt(language);
-    
+
     // Combining system prompt logically since some versions don't support explicit systemInstruction prop cleanly
     let fullPrompt = `${SYSTEM_PROMPT}\n\n`;
     for (const msg of history) {
@@ -51,9 +51,10 @@ export async function generateElectionResponse(
   } catch (err: unknown) {
     console.error('Gemini API Error:', err);
     let msg = err instanceof Error ? err.message : String(err);
-    
+
     if (msg.includes('429') || msg.toLowerCase().includes('quota')) {
-      msg = 'The API usage limit has been reached. Please wait a moment or check your Google AI Studio quota.';
+      msg =
+        'The API usage limit has been reached. Please wait a moment or check your Google AI Studio quota.';
     } else if (msg.includes('503')) {
       msg = 'The AI model is experiencing high demand. Please try again later.';
     }
