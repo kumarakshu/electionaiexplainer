@@ -15,7 +15,7 @@ export function initializeChat(
 
   if (!form || !input || !display) return;
   
-  // @ts-ignore
+  // @ts-expect-error - process is not available in browser but might be present in test environment
   const getApiKey = () => apiKeyParam || (typeof process !== 'undefined' ? process.env.VITE_GEMINI_API_KEY : '');
 
   const chatHistory: ChatMessage[] = [];

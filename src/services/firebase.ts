@@ -20,6 +20,7 @@ const STORAGE_KEY = 'election_ai_user_prefs';
 
 export function initializeFirebase(): void {
   // In production: initializeApp(firebaseConfig);
+  // eslint-disable-next-line no-console
   console.log('Firebase integration layer initialized. Ready for Firestore.');
 }
 

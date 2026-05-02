@@ -14,6 +14,7 @@ describe('Firebase Service', () => {
 
   it('should initialize successfully', () => {
     initializeFirebase();
+    // eslint-disable-next-line no-console
     expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Firebase'));
   });
 
@@ -33,6 +34,19 @@ describe('Firebase Service', () => {
     localStorage.setItem('election_ai_user_prefs', 'invalid-json');
     const theme = await loadUserPreference('theme', 'light');
     expect(theme).toBe('light');
+  });
+
+  it('should save to existing preferences', async () => {
+    await saveUserPreference('language', 'hi');
+    await saveUserPreference('theme', 'dark');
+    const theme = await loadUserPreference('theme', 'light');
+    expect(theme).toBe('dark');
+  });
+
+  it('should return default value if preference is missing in existing data', async () => {
+    await saveUserPreference('theme', 'dark');
+    const lang = await loadUserPreference('language', 'en');
+    expect(lang).toBe('en');
   });
 
   it('should handle save error gracefully', async () => {

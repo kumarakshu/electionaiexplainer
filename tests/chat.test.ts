@@ -2,7 +2,7 @@ import { initializeChat } from '../src/ui/chat';
 import * as geminiService from '../src/services/gemini';
 import * as actionsService from '../src/ui/actions';
 
-declare const process: any;
+declare const process: { env: Record<string, string | undefined> };
 
 jest.mock('../src/services/gemini');
 jest.mock('../src/ui/actions');
@@ -127,6 +127,14 @@ describe('Chat UI', () => {
     expect(mapsSection?.classList.contains('hidden')).toBe(true);
   });
 
+  it('should not throw if maps section is missing on maps open', () => {
+    document.getElementById('maps-section')?.remove();
+    initializeChat('chat-form', 'chat-input', 'chat-display');
+    const btnMaps = document.getElementById('btn-maps-booth');
+    btnMaps?.dispatchEvent(new Event('click'));
+    expect(true).toBe(true);
+  });
+
   it('should handle Voice Input click', () => {
     initializeChat('chat-form', 'chat-input', 'chat-display');
     const voiceBtn = document.getElementById('voice-btn');
@@ -135,14 +143,18 @@ describe('Chat UI', () => {
     
     // Capture and execute callbacks for coverage
     const initCall = (actionsService.initVoiceInput as jest.Mock).mock.calls[0];
+    const onResult = initCall[1];
+    const onError = initCall[2];
     const onStart = initCall[3];
     const onEnd = initCall[4];
+    onResult('test input');
+    onError('error msg');
     onStart();
     onEnd();
   });
 
   it('should trigger guide me correctly based on language', async () => {
-    let mockLang = 'hi';
+    const mockLang = 'hi';
     initializeChat('chat-form', 'chat-input', 'chat-display', 'fake-key', () => mockLang);
     const btnGuide = document.getElementById('btn-guide-me');
     
@@ -168,6 +180,16 @@ describe('Chat UI', () => {
     form.dispatchEvent(new Event('submit'));
     await new Promise(r => setTimeout(r, 0));
     expect(display.lastChild?.textContent).toContain('Error: Fail');
+  });
+
+  it('should handle non-Error exceptions', async () => {
+    initializeChat('chat-form', 'chat-input', 'chat-display');
+    (geminiService.generateElectionResponse as jest.Mock).mockRejectedValue('String Error');
+    process.env.VITE_GEMINI_API_KEY = 'fake-api-key';
+    input.value = 'Hi';
+    form.dispatchEvent(new Event('submit'));
+    await new Promise(r => setTimeout(r, 0));
+    expect(display.lastChild?.textContent).toContain('Error: Failed to communicate with AI.');
   });
 
   it('should handle missing optional buttons gracefully', () => {

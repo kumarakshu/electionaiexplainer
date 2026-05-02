@@ -79,6 +79,24 @@ describe('UI Actions', () => {
       expect(onErr).toHaveBeenCalledWith('Voice input failed. Please check microphone permissions.');
     });
 
+    it('should ignore non-critical speech errors', () => {
+      const input = document.createElement('input');
+      const onErr = jest.fn();
+
+      class MockSR {
+        static lastInstance: MockSR;
+        start() {}
+        onerror!: (event: { error: string }) => void;
+        constructor() { MockSR.lastInstance = this; }
+      }
+      Object.defineProperty(window, 'SpeechRecognition', { value: MockSR, configurable: true });
+
+      initVoiceInput(input, jest.fn(), onErr);
+
+      MockSR.lastInstance.onerror({ error: 'no-speech' });
+      expect(onErr).not.toHaveBeenCalled();
+    });
+
     it('should catch init exceptions', () => {
       Object.defineProperty(window, 'SpeechRecognition', { 
         get: () => { throw new Error('API block') }, configurable: true 
@@ -108,6 +126,23 @@ describe('UI Actions', () => {
       expect(onStart).toHaveBeenCalled();
       expect(onEnd).toHaveBeenCalled();
     });
+
+    it('should not throw if optional callbacks are omitted', () => {
+      class MockSR {
+        static lastInstance: MockSR;
+        start() {}
+        onstart!: () => void;
+        onend!: () => void;
+        constructor() { MockSR.lastInstance = this; }
+      }
+      Object.defineProperty(window, 'SpeechRecognition', { value: MockSR, configurable: true });
+
+      initVoiceInput(document.createElement('input'), jest.fn(), jest.fn());
+      MockSR.lastInstance.onstart();
+      MockSR.lastInstance.onend();
+      // Should not throw
+      expect(true).toBe(true);
+    });
   });
 
   describe('Speech Synthesis', () => {
@@ -125,7 +160,7 @@ describe('UI Actions', () => {
         configurable: true
       });
       // Mock SpeechSynthesisUtterance
-      (window as any).SpeechSynthesisUtterance = jest.fn().mockImplementation((text) => ({
+      (window as unknown as { SpeechSynthesisUtterance: jest.Mock }).SpeechSynthesisUtterance = jest.fn().mockImplementation((text) => ({
         text,
         lang: 'en-US',
         rate: 1
@@ -137,7 +172,7 @@ describe('UI Actions', () => {
       expect(mockCancel).toHaveBeenCalled();
       expect(mockSpeak).toHaveBeenCalled();
       // Verifying markdown removal
-      expect((window as any).SpeechSynthesisUtterance).toHaveBeenCalledWith('hello world');
+      expect((window as unknown as { SpeechSynthesisUtterance: jest.Mock }).SpeechSynthesisUtterance).toHaveBeenCalledWith('hello world');
     });
 
     it('should speak text with Hindi', () => {
@@ -157,6 +192,15 @@ describe('UI Actions', () => {
       
       expect(onStart).toHaveBeenCalledTimes(1);
       expect(onEnd).toHaveBeenCalledTimes(2);
+    });
+
+    it('should not throw if optional callbacks are omitted in speakText', () => {
+      speakText('test', 'en');
+      const utterance = mockSpeak.mock.calls[0][0];
+      utterance.onstart();
+      utterance.onend();
+      utterance.onerror();
+      expect(true).toBe(true);
     });
 
     it('should do nothing if speechSynthesis is not available', () => {

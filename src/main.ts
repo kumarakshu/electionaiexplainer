@@ -145,8 +145,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
       }
 
-      let planHtml = '';
-      let explanation = '';
+      let planHtml: string;
+      let explanation: string;
       
       const confIndicator = `<p style="font-size: 0.75rem; color: var(--primary); margin-top: 0.5rem; font-weight: bold;">Confidence: High (based on your inputs)</p>`;
 
