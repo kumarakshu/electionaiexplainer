@@ -22,10 +22,10 @@ export function initializeChat(
   if (!form || !input || !display) return;
 
   const getApiKey = () => {
-    const globalObj = typeof globalThis !== 'undefined' ? globalThis : window;
-    // @ts-expect-error - process is not standard
-    const env = globalObj.process?.env;
-    return apiKeyParam || (env ? env.VITE_GEMINI_API_KEY : '');
+    const globalAny = globalThis as unknown as {
+      process?: { env?: { VITE_GEMINI_API_KEY?: string } };
+    };
+    return apiKeyParam || (globalAny.process?.env?.VITE_GEMINI_API_KEY ?? '');
   };
 
   const chatHistory: ChatMessage[] = [];

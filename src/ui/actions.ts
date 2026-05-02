@@ -2,14 +2,12 @@
  * UI Actions for Google Services Integration and Utilities
  */
 
-import { clearChildren } from './dom-utils';
-
 export function openGoogleMapsBooth(containerId: string, onShow: () => void): void {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  // Clear any existing map securely
-  clearChildren(container);
+  // Clear any existing map
+  container.innerHTML = '';
 
   // Create an iframe to embed Google Maps directly
   const iframe = document.createElement('iframe');
